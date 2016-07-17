@@ -21,8 +21,10 @@
 
 (defn pinpoint-out [ed & {:keys [root]}]
   (when-let [problems (::s/problems ed)]
-    (doseq [[i problem] (map-indexed vector problems)
-            :let [{:keys [val in pred reason]} problem
+    (doseq [[i probs] (->> problems
+                           (group-by #(select-keys % [:val :in]))
+                           (map-indexed vector))
+            :let [[{:keys [val in]} probs] probs
                   val (or root val)
                   [start end] (extract val in)]]
       (when (not= i 0)
@@ -32,9 +34,12 @@
       (println "   Input:" (pr-str val))
       (printf  "        :%s\n" (wavy-line start end))
       (print "Expected: ")
-      (prn pred)
-      (when reason
-        (printf "(%s)\n" reason)))))
+      (doseq [[j {:keys [pred reason]}] (map-indexed vector probs)]
+        (when (not= j 0)
+          (print "          "))
+        (prn pred)
+        (when reason
+          (printf "(%s)\n" reason))))))
 
 (defn pinpoint [spec x]
   (pinpoint-out (s/explain-data spec x) :root x))
