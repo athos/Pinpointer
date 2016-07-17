@@ -40,8 +40,9 @@
                    sval (pr-str val)]]
        (when (not= i 0)
          (newline))
-       #_(print " Problem: ")
-       #_(prn (assoc problem :val val))
+       #_(doseq [prob probs]
+         (print " Problem: ")
+         (prn (assoc prob :val val)))
        (println "   Input:" (str (subs sval 0 start)
                                  (colorize-by colorize (subs sval start end))
                                  (when (> (count sval) end)
@@ -51,9 +52,10 @@
        (doseq [[j {:keys [pred reason]}] (map-indexed vector probs)]
          (when (not= j 0)
            (print "          "))
-         (prn pred)
+         (pr pred)
          (when reason
-           (printf "(%s)\n" reason)))))))
+           (printf " (%s)" reason))
+         (newline))))))
 
 (defn pinpoint
   ([spec x] (pinpoint spec x {}))
