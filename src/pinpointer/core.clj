@@ -1,6 +1,7 @@
 (ns pinpointer.core
   (:require [clojure.spec :as s]
-            [rewrite-clj.zip :as z]))
+            [rewrite-clj.zip :as z]
+            clansi))
 
 (defn extract* [z [k & more :as in]]
   (if (empty? in)
@@ -19,22 +20,33 @@
   (apply str (concat (repeat start \space)
                      (repeat (- end start) \^))))
 
+(defn colorize-by [colorize-fn s]
+  (if colorize-fn
+    (if (= colorize-fn :ansi)
+      (clansi/style s :yellow)
+      (colorize-fn s))
+    s))
+
 (defn pinpoint-out
   ([ed] (pinpoint-out ed {}))
-  ([ed {:keys [root]}]
+  ([ed {:keys [root colorize]}]
    (when-let [problems (::s/problems ed)]
      (doseq [[i probs] (->> problems
                             (group-by #(select-keys % [:val :in]))
                             (map-indexed vector))
              :let [[{:keys [val in]} probs] probs
                    val (or root val)
-                   [start end] (extract val in)]]
+                   [start end] (extract val in)
+                   sval (pr-str val)]]
        (when (not= i 0)
          (newline))
        #_(print " Problem: ")
        #_(prn (assoc problem :val val))
-       (println "   Input:" (pr-str val))
-       (printf  "        : %s\n" (wavy-line start end))
+       (println "   Input:" (str (subs sval 0 start)
+                                 (colorize-by colorize (subs sval start end))
+                                 (when (> (count sval) end)
+                                   (subs sval end))))
+       (printf  "        : %s\n" (colorize-by colorize (wavy-line start end)))
        (print "Expected: ")
        (doseq [[j {:keys [pred reason]}] (map-indexed vector probs)]
          (when (not= j 0)
