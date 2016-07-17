@@ -4,7 +4,7 @@
 
 (defn extract* [z [k & more :as in]]
   (if (empty? in)
-    (let [[_ pos] (z/position z)]
+    (let [pos (dec (second (z/position z)))]
       [pos (+ pos (z/length z))])
     (cond (z/vector? z) (recur (z/get z k) more)
           (z/map? z) (let [z' (z/get z k)]
@@ -34,7 +34,7 @@
        #_(print " Problem: ")
        #_(prn (assoc problem :val val))
        (println "   Input:" (pr-str val))
-       (printf  "        :%s\n" (wavy-line start end))
+       (printf  "        : %s\n" (wavy-line start end))
        (print "Expected: ")
        (doseq [[j {:keys [pred reason]}] (map-indexed vector probs)]
          (when (not= j 0)
