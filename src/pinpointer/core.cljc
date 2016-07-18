@@ -47,14 +47,15 @@
                                  (colorize-by colorize (subs sval start end))
                                  (when (> (count sval) end)
                                    (subs sval end))))
-       (printf  "        : %s\n" (colorize-by colorize (wavy-line start end)))
+       (print  "        : ")
+       (println (colorize-by colorize (wavy-line start end)))
        (print "Expected: ")
        (doseq [[j {:keys [pred reason]}] (map-indexed vector probs)]
          (when (not= j 0)
            (print "          "))
          (pr pred)
          (when reason
-           (printf " (%s)" reason))
+           (print (str " (" reason ")")))
          (newline))))))
 
 (defn pinpoint
