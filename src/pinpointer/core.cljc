@@ -1,7 +1,7 @@
 (ns pinpointer.core
-  (:require [clojure.spec :as s]
-            [rewrite-clj.zip :as z]
-            clansi))
+  (:require #?@(:clj [[clojure.spec :as s]
+                      [rewrite-clj.zip :as z]
+                      clansi])))
 
 (defn extract* [z [k & more :as in]]
   (if (empty? in)
