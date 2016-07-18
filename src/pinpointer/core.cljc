@@ -1,7 +1,9 @@
 (ns pinpointer.core
   (:require #?@(:clj [[clojure.spec :as s]
                       [rewrite-clj.zip :as z]
-                      clansi])))
+                      clansi]
+                :cljs [[cljs.spec :as s]
+                       [rewrite-clj.zip :as z]])))
 
 (defn extract* [z [k & more :as in]]
   (if (empty? in)
@@ -20,10 +22,14 @@
   (apply str (concat (repeat start \space)
                      (repeat (- end start) \^))))
 
+(defn default-colorize-fn [s]
+  #?(:clj (clansi/style s :yellow)
+     :cljs s))
+
 (defn colorize-by [colorize-fn s]
   (if colorize-fn
     (if (= colorize-fn :ansi)
-      (clansi/style s :yellow)
+      (default-colorize-fn s)
       (colorize-fn s))
     s))
 
