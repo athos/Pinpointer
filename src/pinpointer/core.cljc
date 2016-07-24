@@ -3,7 +3,8 @@
                       [rewrite-clj.zip :as z]
                       clansi]
                 :cljs [[cljs.spec :as s]
-                       [rewrite-clj.zip :as z]])))
+                       [rewrite-clj.zip :as z]])
+            [pinpointer.printer :as pp]))
 
 (defn extract* [z [k & more :as in]]
   (if (empty? in)
@@ -15,7 +16,7 @@
                               (rest more))))))
 
 (defn extract [val in]
-  (let [z (z/of-string (pr-str val) {:track-position? true})]
+  (let [z (z/of-string (pp/pr-str val) {:track-position? true})]
     (extract* z in)))
 
 (defn wavy-line [start end]
@@ -43,7 +44,7 @@
              :let [[{:keys [val in]} probs] probs
                    val (or root val)
                    [start end] (extract val in)
-                   sval (pr-str val)]]
+                   sval (pp/pr-str val)]]
        (when (not= i 0)
          (newline))
        #_(doseq [prob probs]
