@@ -1,9 +1,8 @@
 (ns pinpointer.core
-  (:require #?@(:clj [[clojure.spec :as s]
-                      [rewrite-clj.zip :as z]
+  (:require [clojure.spec :as s]
+            #?@(:clj [[rewrite-clj.zip :as z]
                       clansi]
-                :cljs [[cljs.spec :as s]
-                       [rewrite-clj.zip :as z]])
+                :cljs [[rewrite-clj.zip :as z]])
             [pinpointer.printer :as pp]))
 
 (defn extract* [z [k & more :as in]]
