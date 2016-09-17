@@ -41,7 +41,7 @@
       (print-simple-map m pr))))
 
 (defn- print-set [s]
-  (print-sequential "#{" pr \} (seq s)))
+  (print-sequential "#{" pr \space \} (seq s)))
 
 (defn- print-record [r]
   (print \#)
