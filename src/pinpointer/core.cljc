@@ -9,10 +9,13 @@
   (if (empty? in)
     (let [pos (dec (second (z/position z)))]
       [pos (+ pos (z/length z))])
-    (cond (z/vector? z) (recur (z/get z k) more)
-          (z/map? z) (let [z' (z/get z k)]
-                       (recur (if (= (first more) 0) (z/left z') z')
-                              (rest more))))))
+    (cond (or (z/seq? z) (z/vector? z))
+          (recur (z/get z k) more)
+
+          (z/map? z)
+          (let [z' (z/get z k)]
+            (recur (if (= (first more) 0) (z/left z') z')
+                   (rest more))))))
 
 (defn extract [val in]
   (let [z (z/of-string (pp/pr-str val) {:track-position? true})]
