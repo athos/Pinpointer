@@ -1,5 +1,5 @@
 (ns pinpointer.core
-  (:require [clojure.spec :as s]
+  (:require [clojure.spec.alpha :as s]
             #?@(:clj [[rewrite-clj.zip :as z]
                       clansi]
                 :cljs [[rewrite-clj.zip :as z]])
