@@ -4,12 +4,12 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [;; clj stuff
-                 [org.clojure/clojure "1.9.0-alpha16"]
-                 [org.clojure/spec.alpha "0.1.108"]
+                 [org.clojure/clojure "1.9.0-alpha17"]
+                 [org.clojure/spec.alpha "0.1.123"]
                  [rewrite-clj "0.5.1"]
                  [clansi "1.0.0"]
                  ;; cljs stuff
-                 [org.clojure/clojurescript "1.9.225" :scope "provided"]
+                 [org.clojure/clojurescript "1.9.562" :scope "provided"]
                  [rewrite-cljs "0.4.1"]]
 
   :plugins [[lein-cljsbuild "1.1.4"]]
