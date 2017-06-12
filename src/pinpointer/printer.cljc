@@ -4,78 +4,84 @@
             [fipp.engine :as fipp]
             [fipp.visit :as visit]))
 
-(def ^:dynamic *trace*)
+(defn- with-highlighting [printer f & args]
+  (if (empty? (:trace printer))
+    [:group "<<<" (apply f (:base-printer printer) args) ">>>"]
+    (apply f (:base-printer printer) args)))
 
-(defn- wrap-highlighting [f]
-  (bound-fn [& args]
-    (if (empty? *trace*)
-      [:group "<<<" (apply f args) ">>>"]
-      (apply f args))))
+(defn- pop-trace [printer]
+  (update printer :trace rest))
 
-(defn- with-trace-pop [x f]
-  #_(clojure.core/prn :trace *trace*)
-  #_(clojure.core/prn :x x)
-  (if (= x (:val (first *trace*)))
-    (binding [*trace* (rest *trace*)]
-      (f))
-    (f)))
+(defn- pop-trace-if-matches [printer x]
+  (if (= x (:val (first (:trace printer))))
+    (pop-trace printer)
+    printer))
 
-(defrecord HighlightPrinter [base-printer]
+(defn- pretty-coll [printer open xs sep close f]
+  (let [xform (comp (map #(f printer %))
+                    (interpose sep))
+        ys (sequence xform xs)]
+    [:group open ys close]))
+
+(defrecord HighlightPrinter [base-printer trace]
   visit/IVisitor
   (visit-unknown [this x]
-    ((wrap-highlighting visit/visit-unknown) base-printer x))
+    (with-highlighting this visit/visit-unknown x))
   (visit-nil [this]
-    ((wrap-highlighting visit/visit-nil) base-printer))
+    (with-highlighting this visit/visit-nil))
   (visit-boolean [this x]
-    ((wrap-highlighting visit/visit-boolean) base-printer x))
+    (with-highlighting this visit/visit-boolean x))
   (visit-string [this x]
-    ((wrap-highlighting visit/visit-string) base-printer x))
+    (with-highlighting this visit/visit-string x))
   (visit-character [this x]
-    ((wrap-highlighting visit/visit-character) base-printer x))
+    (with-highlighting this visit/visit-character x))
   (visit-symbol [this x]
-    ((wrap-highlighting visit/visit-symbol) base-printer x))
+    (with-highlighting this visit/visit-symbol x))
   (visit-keyword [this x]
-    ((wrap-highlighting visit/visit-keyword) base-printer x))
+    (with-highlighting this visit/visit-keyword x))
   (visit-number [this x]
-    ((wrap-highlighting visit/visit-number) base-printer x))
+    (with-highlighting this visit/visit-number x))
   (visit-seq [this x]
-    (with-trace-pop x
-      (wrap-highlighting
-        #(edn/pretty-coll this "(" x :line ")" visit/visit))))
+    (with-highlighting this
+      (fn [_]
+        (let [printer (pop-trace-if-matches this x)]
+          (edn/pretty-coll printer "(" x :line ")" visit/visit)))))
   (visit-vector [this x]
-    (with-trace-pop x
-      (wrap-highlighting
-        #(edn/pretty-coll this "[" x :line "]" visit/visit))))
+    (with-highlighting this
+      (fn [_]
+        (let [printer (pop-trace-if-matches this x)]
+          (edn/pretty-coll printer "[" x :line "]" visit/visit)))))
   (visit-map [this x]
-    (with-trace-pop x
-      (wrap-highlighting
-        #(edn/pretty-coll this "{" x [:span "," :line] "}"
-           (fn [printer [k v]]
-             [:span (visit/visit printer k) " " (visit/visit printer v)])))))
+    (with-highlighting this
+      (fn [_]
+        (let [printer (pop-trace-if-matches this x)]
+          (edn/pretty-coll printer "{" x [:span "," :line] "}"
+            (fn [printer [k v]]
+              [:span (visit/visit printer k) " " (visit/visit printer v)]))))))
   (visit-set [this x]
-    (with-trace-pop x
-      (wrap-highlighting
-        #(edn/pretty-coll this "#{" x :line "}" visit/visit))))
+    (with-highlighting this
+      (fn [_]
+        (let [printer (pop-trace-if-matches this x)]
+          (edn/pretty-coll printer "#{" x :line "}" visit/visit)))))
   (visit-tagged [this x]
-    ((wrap-highlighting visit/visit-tagged) base-printer x))
+    (with-highlighting this visit/visit-tagged x))
   (visit-meta [this meta x]
-    ((wrap-highlighting #(visit/visit-meta %1 meta %2)) base-printer x))
+    (with-highlighting this #(visit/visit-meta %1 meta %2) x))
   (visit-var [this x]
-    ((wrap-highlighting visit/visit-var) base-printer x))
+    (with-highlighting this visit/visit-var x))
   (visit-pattern [this x]
-    ((wrap-highlighting visit/visit-pattern) base-printer x))
+    (with-highlighting this visit/visit-pattern x))
   (visit-record [this x]
-    ((wrap-highlighting visit/visit-record) base-printer x))
+    (with-highlighting this visit/visit-record x))
   )
 
-(defn highlight-printer []
+(defn highlight-printer [trace]
   (let [base-printer (edn/map->EdnPrinter {:symbols {}})]
-    (->HighlightPrinter base-printer)))
+    (->HighlightPrinter base-printer trace)))
 
 (defn pprint [x trace]
-  (let [printer (highlight-printer)]
-    (binding [*trace* trace]
-      (fipp/pprint-document (visit/visit printer x) {}))))
+  (let [printer (highlight-printer trace)]
+    (fipp/pprint-document (visit/visit printer x) {})))
 
 (defn pr [x])
 
