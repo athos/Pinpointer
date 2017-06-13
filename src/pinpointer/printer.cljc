@@ -1,24 +1,29 @@
 (ns pinpointer.printer
   (:refer-clojure :exclude [pr prn pr-str])
-  (:require [fipp.edn :as edn]
+  (:require [clojure.spec.alpha :as s]
+            [fipp.edn :as edn]
             [fipp.engine :as fipp]
             [fipp.visit :as visit]))
 
-(defn- with-highlighting [printer f & args]
-  (if (empty? (:trace printer))
-    [:group "<<<" (apply f (:base-printer printer) args) ">>>"]
-    (apply f (:base-printer printer) args)))
+(defmulti render
+  (fn [{:keys [spec]} f printer x] (when (seq? spec) (first spec))))
+(defmethod render :default [_ f printer x]
+  (f (:base-printer printer) x))
 
-(defn- pop-trace [printer]
+(defn- wrap [f printer x]
+  (cond (empty? (:trace printer))
+        [:group "<<<" (f (:base-printer printer) x) ">>>"]
+
+        (= x (:val (first (:trace printer))))
+        (render (first (:trace printer)) f printer x)
+
+        :else (f (:base-printer printer) x)))
+
+(defn pop-trace [printer]
   (update printer :trace rest))
 
-(defn- pop-trace-if-matches [printer x]
-  (if (= x (:val (first (:trace printer))))
-    (pop-trace printer)
-    printer))
-
 (defn- pretty-coll [printer open xs sep close f]
-  (let [xform (comp (map #(f printer %))
+  (let [xform (comp (map-indexed #(f printer %1 %2))
                     (interpose sep))
         ys (sequence xform xs)]
     [:group open ys close]))
@@ -26,54 +31,56 @@
 (defrecord HighlightPrinter [base-printer trace]
   visit/IVisitor
   (visit-unknown [this x]
-    (with-highlighting this visit/visit-unknown x))
+    (wrap visit/visit-unknown this x))
   (visit-nil [this]
-    (with-highlighting this visit/visit-nil))
+    (wrap (fn [printer _] (visit/visit-nil printer)) this nil))
   (visit-boolean [this x]
-    (with-highlighting this visit/visit-boolean x))
+    (wrap visit/visit-boolean this x))
   (visit-string [this x]
-    (with-highlighting this visit/visit-string x))
+    (wrap visit/visit-string this x))
   (visit-character [this x]
-    (with-highlighting this visit/visit-character x))
+    (wrap visit/visit-character this x))
   (visit-symbol [this x]
-    (with-highlighting this visit/visit-symbol x))
+    (wrap visit/visit-symbol this x))
   (visit-keyword [this x]
-    (with-highlighting this visit/visit-keyword x))
+    (wrap visit/visit-keyword this x))
   (visit-number [this x]
-    (with-highlighting this visit/visit-number x))
+    (wrap visit/visit-number this x))
   (visit-seq [this x]
-    (with-highlighting this
-      (fn [_]
-        (let [printer (pop-trace-if-matches this x)]
-          (edn/pretty-coll printer "(" x :line ")" visit/visit)))))
+    (wrap visit/visit-seq this x))
   (visit-vector [this x]
-    (with-highlighting this
-      (fn [_]
-        (let [printer (pop-trace-if-matches this x)]
-          (edn/pretty-coll printer "[" x :line "]" visit/visit)))))
+    (wrap visit/visit-vector this x))
   (visit-map [this x]
-    (with-highlighting this
-      (fn [_]
-        (let [printer (pop-trace-if-matches this x)]
-          (edn/pretty-coll printer "{" x [:span "," :line] "}"
-            (fn [printer [k v]]
-              [:span (visit/visit printer k) " " (visit/visit printer v)]))))))
+    (wrap visit/visit-map this x))
   (visit-set [this x]
-    (with-highlighting this
-      (fn [_]
-        (let [printer (pop-trace-if-matches this x)]
-          (edn/pretty-coll printer "#{" x :line "}" visit/visit)))))
+    (wrap visit/visit-set this x))
   (visit-tagged [this x]
-    (with-highlighting this visit/visit-tagged x))
+    (wrap visit/visit-tagged this x))
   (visit-meta [this meta x]
-    (with-highlighting this #(visit/visit-meta %1 meta %2) x))
+    (wrap #(visit/visit-meta %1 meta %2) this x))
   (visit-var [this x]
-    (with-highlighting this visit/visit-var x))
+    (wrap visit/visit-var this x))
   (visit-pattern [this x]
-    (with-highlighting this visit/visit-pattern x))
+    (wrap visit/visit-pattern this x))
   (visit-record [this x]
-    (with-highlighting this visit/visit-record x))
+    (wrap visit/visit-record this x))
   )
+
+(defmethod render `s/tuple [{[n] :steps} _ printer x]
+  (pretty-coll printer "[" x :line "]"
+    (fn [printer i x]
+      (visit/visit (cond-> printer (= i n) pop-trace) x))))
+
+(defmethod render `s/map-of [{[key k-or-v] :steps} _ printer x]
+  (pretty-coll printer "{" x [:span "," :line] "}"
+    (fn [printer i [k v]]
+      (let [kprinter (cond-> printer
+                       (and (= k key) (= k-or-v 0))
+                       pop-trace)
+            vprinter (cond-> printer
+                       (and (= k key) (= k-or-v 1))
+                       pop-trace)]
+        [:span (visit/visit kprinter k) " " (visit/visit vprinter v)]))))
 
 (defn highlight-printer [trace]
   (let [base-printer (edn/map->EdnPrinter {:symbols {}})]
