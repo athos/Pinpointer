@@ -142,3 +142,21 @@
     (fn [i [k v]]
       (let [vprinter (cond-> printer (= k key) pop-trace)]
         [:span (visit/visit printer k) " " (visit/visit vprinter v)]))))
+
+(defmethod render `s/cat [frame _ printer x]
+  (render-coll frame printer x))
+
+(defmethod render `s/& [frame _ printer x]
+  (render-coll frame printer x))
+
+(defmethod render `s/alt [frame _ printer x]
+  (render-coll frame printer x))
+
+(defmethod render `s/? [frame _ printer x]
+  (render-coll frame printer x))
+
+(defmethod render `s/* [frame _ printer x]
+  (render-coll frame printer x))
+
+(defmethod render `s/+ [frame _ printer x]
+  (render-coll frame printer x))
