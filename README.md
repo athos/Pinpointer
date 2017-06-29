@@ -1,6 +1,6 @@
 # Pinpointer
 
-_Pinpointer_ aims to enhance `clojure.spec/explain` facility and make it easy to grasp which part of data is violating spec conformance.
+_Pinpointer_ aims to enhance `clojure.spec/explain` facility and make it easy to grasp which part of data is causing the spec error.
 
 **Notice**: Pinpointer is built on top of `clojure.spec`, which is one of the most actively developed features of Clojure 1.9. So, it's very fragile by nature, and its APIs are also highly subject to change.
 
