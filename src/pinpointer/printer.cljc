@@ -10,9 +10,12 @@
 (defmethod render :default [_ f printer x]
   (f (:base-printer printer) x))
 
+(defn- highlight [x]
+  [:span [:escaped "\000"] x [:escaped "\001"]])
+
 (defn- wrap [f printer x]
   (cond (empty? (:trace printer))
-        [:group "<<<" (f (:base-printer printer) x) ">>>"]
+        (highlight (f (:base-printer printer) x))
 
         (= x (:val (first (:trace printer))))
         (render (first (:trace printer)) f printer x)
@@ -64,9 +67,10 @@
   (let [base-printer (edn/map->EdnPrinter {:symbols {}})]
     (->HighlightPrinter base-printer trace)))
 
-(defn pprint [x trace]
+(defn pprint-str [x trace]
   (let [printer (highlight-printer trace)]
-    (fipp/pprint-document (visit/visit printer x) {})))
+    (with-out-str
+      (fipp/pprint-document (visit/visit printer x) {}))))
 
 (defn pr [x])
 
