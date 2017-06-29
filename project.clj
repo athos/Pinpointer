@@ -11,7 +11,7 @@
                  [rewrite-clj "0.5.1"]
                  [clansi "1.0.0"]
                  ;; cljs stuff
-                 [org.clojure/clojurescript "1.9.562" :scope "provided"]
+                 [org.clojure/clojurescript "1.9.660" :scope "provided"]
                  [rewrite-cljs "0.4.1"]]
 
   :plugins [[lein-cljsbuild "1.1.4"]]
