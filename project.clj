@@ -3,15 +3,11 @@
   :url "https://github.com/athos/Pinpointer"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [;; clj stuff
-                 [org.clojure/clojure "1.9.0-alpha17"]
-                 [fipp "0.6.8"]
-                 [spectrace "0.1.0-SNAPSHOT"]
-                 [rewrite-clj "0.5.1"]
-                 [clansi "1.0.0"]
-                 ;; cljs stuff
+  :dependencies [[org.clojure/clojure "1.9.0-alpha17"]
                  [org.clojure/clojurescript "1.9.660" :scope "provided"]
-                 [rewrite-cljs "0.4.1"]]
+                 [clansi "1.0.0"]
+                 [fipp "0.6.8"]
+                 [spectrace "0.1.0-SNAPSHOT"]]
 
   :plugins [[lein-cljsbuild "1.1.4"]]
 
