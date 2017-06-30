@@ -69,3 +69,13 @@
   ([spec x opts]
    (pinpoint-out (s/explain-data spec x)
                  (merge {:root x} opts))))
+
+(defn ppt []
+  (letfn [(find-spec-error [^Throwable t]
+            (when t
+              (let [data (ex-data t)]
+                (if (and data (::s/problems data))
+                  t
+                  (recur (.getCause t))))))]
+    (when-let [e (find-spec-error *e)]
+      (pinpoint-out (ex-data e)))))
