@@ -49,24 +49,25 @@
 (defn pinpoint-out
   ([ed] (pinpoint-out ed {}))
   ([{:keys [::s/problems ::s/spec ::s/value] :as ed} {:keys [colorize]}]
-   (hline)
-   (doseq [[i problem] (map-indexed vector problems)
-           :let [trace (trace/trace problem spec value)
-                 [line & lines] (format-data value trace)]]
-     (when (not= i 0)
-       (hline))
-     (println "     Input:" line)
-     (doseq [line lines]
-       (println "          :" line))
-     (let [[line & lines] (-> (with-out-str
-                                (fipp/pprint (:pred problem)))
-                              (str/split #"\n"))]
-       (println "  Expected:" line)
-       (doseq [line lines]
-         (println "           " line)))
-     (when-let [reason (:reason problem)]
-       (println "    Reason:" reason)))
-   (hline)))
+   (if ed
+     (do (println "Some spec errors were detected:")
+         (hline)
+         (doseq [problem problems
+                 :let [trace (trace/trace problem spec value)
+                       [line & lines] (format-data value trace)]]
+           (println "     Input:" line)
+           (doseq [line lines]
+             (println "          :" line))
+           (let [[line & lines] (-> (with-out-str
+                                      (fipp/pprint (:pred problem)))
+                                    (str/split #"\n"))]
+             (println "  Expected:" line)
+             (doseq [line lines]
+               (println "           " line)))
+           (when-let [reason (:reason problem)]
+             (println "    Reason:" reason))
+           (hline)))
+     (println "Success!"))))
 
 (defn pinpoint
   ([spec x] (pinpoint spec x {}))
