@@ -6,20 +6,20 @@
             [pinpointer.printer :as printer]
             [pinpointer.trace :as trace]))
 
-(defn wavy-line [start length]
-  (apply str (concat (repeat start \space)
-                     (repeat length \^))))
-
-(defn default-colorize-fn [s]
-  #?(:clj (clansi/style s :yellow)
+(defn default-colorize-fn [color s]
+  #?(:clj (clansi/style s color)
      :cljs s))
 
-(defn- colorize-by [colorize-fn s]
-  (if colorize-fn
-    (if (= colorize-fn :ansi)
-      (default-colorize-fn s)
-      (colorize-fn s))
-    s))
+(def ^:dynamic *colorize-fn* default-colorize-fn)
+
+(defn- colorize [color s]
+  (*colorize-fn* color s))
+
+(defn- wavy-line [start length]
+  (->> (concat (repeat start \space)
+               (repeat length \^))
+       (apply str)
+       (colorize :red)))
 
 (defn- format-data [value trace]
   (let [lines (str/split (printer/pprint-str value trace) #"\n")]
@@ -29,18 +29,22 @@
         (if highlighting?
           (let [indent (count (re-find #"^\s*" line))
                 [highlight post] (str/split line #"\001")
-                wavy (wavy-line indent (count highlight))]
+                wavy (wavy-line indent (count highlight))
+                highlight (colorize :red highlight)]
             (recur more false (conj ret (str highlight post) wavy)))
           (let [[pre highlight] (str/split line #"\000")]
             (if highlight
               (let [[highlight' post] (str/split highlight #"\001")
-                    wavy (wavy-line (count pre) (count highlight'))]
+                    wavy (wavy-line (count pre) (count highlight'))
+                    highlight' (colorize :red highlight')]
                 (recur more (not post)
                        (conj ret (str pre highlight' post) wavy)))
               (recur more highlighting? (conj ret line)))))))))
 
 (defn- hline []
-  (println "\n --------------------------------------------------\n"))
+  (->> "\n --------------------------------------------------\n"
+       (colorize :cyan)
+       println))
 
 (defn pinpoint-out
   ([ed] (pinpoint-out ed {}))
