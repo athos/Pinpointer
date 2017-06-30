@@ -71,8 +71,7 @@
 (defn pinpoint
   ([spec x] (pinpoint spec x {}))
   ([spec x opts]
-   (pinpoint-out (s/explain-data spec x)
-                 (merge {:root x} opts))))
+   (pinpoint-out (s/explain-data spec x) opts)))
 
 (defn ppt []
   (letfn [(find-spec-error [^Throwable t]
