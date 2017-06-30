@@ -72,16 +72,6 @@
     (with-out-str
       (fipp/pprint-document (visit/visit printer x) {}))))
 
-(defn pr [x])
-
-(defn prn [x]
-  (pr x)
-  (newline))
-
-(defn pr-str [x]
-  (with-out-str
-    (pr x)))
-
 ;;
 ;; Method implementations of `render`
 ;;
