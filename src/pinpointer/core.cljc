@@ -2,6 +2,7 @@
   (:require #?@(:clj ([clansi]))
             [clojure.spec.alpha :as s]
             [clojure.string :as str]
+            [fipp.clojure :as fipp]
             [pinpointer.printer :as printer]
             [pinpointer.trace :as trace]))
 
@@ -38,22 +39,30 @@
                        (conj ret (str pre highlight' post) wavy)))
               (recur more highlighting? (conj ret line)))))))))
 
+(defn- hline []
+  (println "\n --------------------------------------------------\n"))
+
 (defn pinpoint-out
   ([ed] (pinpoint-out ed {}))
   ([{:keys [::s/problems ::s/spec ::s/value] :as ed} {:keys [colorize]}]
+   (hline)
    (doseq [[i problem] (map-indexed vector problems)
            :let [trace (trace/trace problem spec value)
                  [line & lines] (format-data value trace)]]
      (when (not= i 0)
-       (newline))
-     (println "   Input:" line)
+       (hline))
+     (println "     Input:" line)
      (doseq [line lines]
-       (println "        :" line))
-     (print "Expected: ")
-     (pr (:pred problem))
-     (when (:reason problem)
-       (print (str " (" (:reason problem) ")")))
-     (newline))))
+       (println "          :" line))
+     (let [[line & lines] (-> (with-out-str
+                                (fipp/pprint (:pred problem)))
+                              (str/split #"\n"))]
+       (println "  Expected:" line)
+       (doseq [line lines]
+         (println "           " line)))
+     (when-let [reason (:reason problem)]
+       (println "    Reason:" reason)))
+   (hline)))
 
 (defn pinpoint
   ([spec x] (pinpoint spec x {}))
