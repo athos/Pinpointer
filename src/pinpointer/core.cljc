@@ -6,14 +6,26 @@
             [pinpointer.printer :as printer]
             [pinpointer.trace :as trace]))
 
-(defn default-colorize-fn [color s]
-  #?(:clj (clansi/style s color)
-     :cljs s))
-
-(def ^:dynamic *colorize-fn* default-colorize-fn)
+(def ^:dynamic *colorize-fn*)
 
 (defn- colorize [color s]
   (*colorize-fn* color s))
+
+(defn- ansi-colorize [color s]
+  #?(:clj (clansi/style s color)
+     :cljs s))
+
+(defn- none-colorize [_ s] s)
+
+(def ^:private builtin-colorize-fns
+  {:ansi ansi-colorize
+   :none none-colorize})
+
+(defn- choose-colorize-fn [colorize]
+  (let [colorize (or colorize :none)]
+    (if (keyword? colorize)
+      (get builtin-colorize-fns colorize none-colorize)
+      colorize)))
 
 (defn- wavy-line [start length]
   (->> (concat (repeat start \space)
@@ -49,25 +61,26 @@
 (defn pinpoint-out
   ([ed] (pinpoint-out ed {}))
   ([{:keys [::s/problems ::s/spec ::s/value] :as ed} {:keys [colorize]}]
-   (if ed
-     (do (println "Some spec errors were detected:")
-         (hline)
-         (doseq [problem problems
-                 :let [trace (trace/trace problem spec value)
-                       [line & lines] (format-data value trace)]]
-           (println "     Input:" line)
-           (doseq [line lines]
-             (println "          :" line))
-           (let [[line & lines] (-> (with-out-str
-                                      (fipp/pprint (:pred problem)))
-                                    (str/split #"\n"))]
-             (println "  Expected:" line)
+   (binding [*colorize-fn* (choose-colorize-fn colorize)]
+     (if ed
+       (do (println "Some spec errors were detected:")
+           (hline)
+           (doseq [problem problems
+                   :let [trace (trace/trace problem spec value)
+                         [line & lines] (format-data value trace)]]
+             (println "     Input:" line)
              (doseq [line lines]
-               (println "           " line)))
-           (when-let [reason (:reason problem)]
-             (println "    Reason:" reason))
-           (hline)))
-     (println "Success!"))))
+               (println "          :" line))
+             (let [[line & lines] (-> (with-out-str
+                                        (fipp/pprint (:pred problem)))
+                                      (str/split #"\n"))]
+               (println "  Expected:" line)
+               (doseq [line lines]
+                 (println "           " line)))
+             (when-let [reason (:reason problem)]
+               (println "    Reason:" reason))
+             (hline)))
+       (println "Success!")))))
 
 (defn pinpoint
   ([spec x] (pinpoint spec x {}))
