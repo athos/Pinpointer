@@ -58,29 +58,37 @@
        (colorize :cyan)
        println))
 
+(defn- correct-paths [ed]
+  (if (::s/args ed)
+    ;; Probably :path in each problem has extra :args key
+    (update ed ::s/problems
+            (fn [problems] (map #(update % :path subvec 1) problems)))
+    ed))
+
 (defn pinpoint-out
   ([ed] (pinpoint-out ed {}))
-  ([{:keys [::s/problems ::s/spec ::s/value] :as ed} {:keys [colorize]}]
-   (binding [*colorize-fn* (choose-colorize-fn colorize)]
-     (if ed
-       (do (println "Some spec errors were detected:")
-           (hline)
-           (doseq [problem problems
-                   :let [trace (trace/trace problem spec value)
-                         [line & lines] (format-data value trace)]]
-             (println "     Input:" line)
+  ([ed {:keys [colorize]}]
+   (if ed
+     (let [{:keys [::s/problems ::s/spec ::s/value]} (correct-paths ed)]
+       (binding [*colorize-fn* (choose-colorize-fn colorize)]
+         (println "Some spec errors were detected:")
+         (hline)
+         (doseq [problem problems
+                 :let [trace (trace/trace problem spec value)
+                       [line & lines] (format-data value trace)]]
+           (println "     Input:" line)
+           (doseq [line lines]
+             (println "          :" line))
+           (let [[line & lines] (-> (with-out-str
+                                      (fipp/pprint (:pred problem)))
+                                    (str/split #"\n"))]
+             (println "  Expected:" line)
              (doseq [line lines]
-               (println "          :" line))
-             (let [[line & lines] (-> (with-out-str
-                                        (fipp/pprint (:pred problem)))
-                                      (str/split #"\n"))]
-               (println "  Expected:" line)
-               (doseq [line lines]
-                 (println "           " line)))
-             (when-let [reason (:reason problem)]
-               (println "    Reason:" reason))
-             (hline)))
-       (println "Success!")))))
+               (println "           " line)))
+           (when-let [reason (:reason problem)]
+             (println "    Reason:" reason))
+           (hline))))
+     (println "Success!!"))))
 
 (defn pinpoint
   ([spec x] (pinpoint spec x {}))
