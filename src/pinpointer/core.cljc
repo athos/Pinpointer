@@ -69,13 +69,12 @@
   ([ed] (pinpoint-out ed {}))
   ([ed {:keys [colorize]}]
    (if ed
-     (let [{:keys [::s/problems ::s/spec ::s/value]} (correct-paths ed)]
+     (let [{:keys [::s/problems ::s/value] :as ed} (correct-paths ed)]
        (binding [*colorize-fn* (choose-colorize-fn colorize)]
          (println "Some spec errors were detected:")
          (hline)
-         (doseq [problem problems
-                 :let [trace (trace/trace problem spec value)
-                       [line & lines] (format-data value trace)]]
+         (doseq [[problem trace] (map vector problems (trace/traces ed))
+                 :let [[line & lines] (format-data value trace)]]
            (println "     Input:" line)
            (doseq [line lines]
              (println "          :" line))

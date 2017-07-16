@@ -1,13 +1,11 @@
 (ns pinpointer.trace
-  (:require [clojure.spec.alpha :as s]
-            [spectrace.trace :as trace]))
+  (:require [spectrace.core :as strace]))
 
-(defn trace [problem spec value]
-  (let [diff-steps (fn [steps1 steps2]
-                     (reverse (drop (count steps1) (rseq steps2))))
-        trace (trace/trace problem spec value)]
-    (if (= (count trace) 1)
-      (let [{:keys [spec val in]} (first trace)]
+(defn- trace [t]
+  (letfn [(diff-steps [steps1 steps2]
+            (reverse (drop (count steps1) (rseq steps2))))]
+    (if (= (count t) 1)
+      (let [{:keys [spec val in]} (first t)]
         {:spec spec :val val :steps in})
       (reduce (fn [t [curr next]]
                 (cond-> t
@@ -16,7 +14,7 @@
                          :val (:val curr)
                          :steps (diff-steps (:in next) (:in curr))})))
               []
-              (partition 2 1 trace)))))
+              (partition 2 1 t)))))
 
-(defn traces [{:keys [::s/problems ::s/spec ::s/value]}]
-  (mapv #(trace % spec value) problems))
+(defn traces [ed]
+  (mapv trace (strace/traces ed)))
