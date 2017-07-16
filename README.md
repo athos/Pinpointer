@@ -62,6 +62,37 @@ You can also colorize the report by adding the option `{:colorize :ansi}`:
 
 <img src="doc/images/colorized-pinpoint-result.png" width="630">
 
+If you'd rather like to completely replace the `explain` facility for any kinds of spec error reporting, it would be helpful to replace `s/*explain-out*` with `pinpointer.core/pinpoint-out`:
+
+```clj
+=> (set! s/*explain-out* p/pinpoint-out)
+#function[pinpointer.core/pinpoint-out]
+;; from now on, p/pinpoint-out will be used in place of s/explain-printer
+=> (defn f [x] (inc x))
+#'user/f
+=> (s/fdef f
+     :args (s/cat :x (s/and integer? even?))
+     :ret (s/and integer? odd?))
+user/f
+=> (require '[clojure.spec.test.alpha :as t])
+nil
+=> (t/instrument)
+[user/f]
+=> (f 3)
+ExceptionInfo Call to #'user/f did not conform to spec:
+
+ 1 spec error was detected:
+ --------------------------------------------------
+ (1/1)
+
+     Input: (3)
+          :  ^
+  Expected: even?
+
+ --------------------------------------------------
+  clojure.core/ex-info (core.clj:4725)
+```
+
 ## License
 
 Copyright © 2016 Shogo Ohta
