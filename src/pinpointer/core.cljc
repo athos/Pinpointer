@@ -2,6 +2,7 @@
   (:require #?@(:clj ([clansi]))
             [clojure.spec.alpha :as s]
             [clojure.string :as str]
+            [clojure.walk :as walk]
             [fipp.clojure :as fipp]
             [pinpointer.printer :as printer]
             [pinpointer.trace :as trace]))
@@ -70,6 +71,14 @@
             (fn [problems] (map #(update % :path subvec 1) problems)))
     ed))
 
+(defn- simplify-spec [spec]
+  (walk/postwalk (fn [x]
+                   (if (and (symbol? x)
+                            (= (namespace x) "clojure.core"))
+                     (symbol (name x))
+                     x))
+                 spec))
+
 (defn pinpoint-out
   ([ed] (pinpoint-out ed {}))
   ([ed {:keys [colorize]}]
@@ -89,9 +98,10 @@
            (println "     Input:" line)
            (doseq [line lines]
              (println "          :" line))
-           (let [[line & lines] (-> (with-out-str
-                                      (fipp/pprint (:pred problem)))
-                                    (str/split #"\n"))]
+           (let [[line & lines] (as-> (:pred problem) it
+                                  (simplify-spec it)
+                                  (with-out-str (fipp/pprint it))
+                                  (str/split it #"\n"))]
              (println "  Expected:" line)
              (doseq [line lines]
                (println "           " line)))
