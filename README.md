@@ -1,7 +1,7 @@
 # Pinpointer
 [![Clojars Project](https://img.shields.io/clojars/v/pinpointer.svg)](https://clojars.org/pinpointer)
 
-_Pinpointer_ aims to enhance `clojure.spec/explain` facility and make it easy to grasp which part of data is causing the spec error.
+Pinpointer aims to enhance `clojure.spec/explain` facility and make it easy to grasp which part of data is causing the spec error.
 
 **Notice**: Pinpointer is built on top of `clojure.spec`, which is one of the most actively developed new features of Clojure. So, it's very fragile by nature, and its APIs are also highly subject to change.
 
@@ -31,6 +31,8 @@ nil
 
 As you can see, however, the result of `explain` doesn't look very human-friendlily formatted, and it's likely to take a while to find out where the actual problem is.
 
+### pinpoint: replacement of s/explain
+
 _Pinpointer_ provides APIs compatible with `explain` and displays the problematic parts in an easier-to-grasp manner:
 
 ```clj
@@ -58,9 +60,12 @@ nil
 =>
 ```
 
+
 You can also colorize the report by adding the option `{:colorize :ansi}`:
 
 <img src="doc/images/colorized-pinpoint-result.png" width="630">
+
+### pinpoint-out: plugin implementation for s/\*explain-out\*
 
 If you'd rather like to completely replace the `explain` facility for any kinds of spec error reporting, it would be helpful to replace `s/*explain-out*` with `pinpointer.core/pinpoint-out` instead:
 
