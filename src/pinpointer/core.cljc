@@ -53,8 +53,13 @@
                        (conj ret (str pre highlight' post) wavy)))
               (recur more highlighting? (conj ret line)))))))))
 
+(defn- print-headline [nproblems]
+  (if (= nproblems 1)
+    (println " 1 spec error was detected:")
+    (println " " nproblems "spec errors were detected:")))
+
 (defn- hline []
-  (->> "\n --------------------------------------------------\n"
+  (->> " --------------------------------------------------"
        (colorize :cyan)
        println))
 
@@ -69,12 +74,18 @@
   ([ed] (pinpoint-out ed {}))
   ([ed {:keys [colorize]}]
    (if ed
-     (let [{:keys [::s/problems ::s/value] :as ed} (correct-paths ed)]
+     (let [{:keys [::s/problems ::s/value] :as ed} (correct-paths ed)
+           nproblems (count problems)]
        (binding [*colorize-fn* (choose-colorize-fn colorize)]
-         (println "Some spec errors were detected:")
+         (newline)
+         (print-headline nproblems)
          (hline)
-         (doseq [[problem trace] (map vector problems (trace/traces ed))
+         (doseq [[i problem trace] (map vector
+                                        (range)
+                                        problems
+                                        (trace/traces ed))
                  :let [[line & lines] (format-data value trace)]]
+           (printf " (%d/%d)\n\n" (inc i) nproblems)
            (println "     Input:" line)
            (doseq [line lines]
              (println "          :" line))
@@ -86,6 +97,7 @@
                (println "           " line)))
            (when-let [reason (:reason problem)]
              (println "    Reason:" reason))
+           (newline)
            (hline))))
      (println "Success!!"))))
 
