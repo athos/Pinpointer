@@ -31,7 +31,7 @@ nil
 
 As you can see, however, the result of `explain` doesn't look very human-friendlily formatted, and it's likely to take a while to find out where the actual problem is.
 
-_Pinpointer_ provides APIs compatible with `explain`, and they show us the problem part in a easier-to-grasp manner:
+_Pinpointer_ provides APIs compatible with `explain`, and they show us the problem part in an easier-to-grasp manner:
 
 ```clj
 => (require '[pinpointer.core :as p])
@@ -58,7 +58,7 @@ nil
 =>
 ```
 
-You can also highlight the part by adding the option `{:colorize :ansi}`:
+You can also colorize the report by adding the option `{:colorize :ansi}`:
 
 <img src="doc/images/colorized-pinpoint-result.png" width="630">
 
