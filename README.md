@@ -31,7 +31,7 @@ nil
 
 As you can see, however, the result of `explain` doesn't look very human-friendlily formatted, and it's likely to take a while to find out where the actual problem is.
 
-_Pinpointer_ provides APIs compatible with `explain`, and they show us the problem part in an easier-to-grasp manner:
+_Pinpointer_ provides APIs compatible with `explain` and displays the problematic parts in an easier-to-grasp manner:
 
 ```clj
 => (require '[pinpointer.core :as p])
@@ -62,12 +62,14 @@ You can also colorize the report by adding the option `{:colorize :ansi}`:
 
 <img src="doc/images/colorized-pinpoint-result.png" width="630">
 
-If you'd rather like to completely replace the `explain` facility for any kinds of spec error reporting, it would be helpful to replace `s/*explain-out*` with `pinpointer.core/pinpoint-out`:
+If you'd rather like to completely replace the `explain` facility for any kinds of spec error reporting, it would be helpful to replace `s/*explain-out*` with `pinpointer.core/pinpoint-out` instead:
 
 ```clj
 => (set! s/*explain-out* p/pinpoint-out)
 #function[pinpointer.core/pinpoint-out]
+=>
 ;; from now on, p/pinpoint-out will be used in place of s/explain-printer
+=>
 => (defn f [x] (inc x))
 #'user/f
 => (s/fdef f
@@ -91,6 +93,7 @@ ExceptionInfo Call to #'user/f did not conform to spec:
 
  --------------------------------------------------
   clojure.core/ex-info (core.clj:4725)
+=>
 ```
 
 ## License
