@@ -73,9 +73,11 @@
 
 (defn- simplify-spec [spec]
   (walk/postwalk (fn [x]
-                   (if (and (symbol? x)
-                            (= (namespace x) "clojure.core"))
-                     (symbol (name x))
+                   (if (symbol? x)
+                     (condp #(= (namespace %2) %1) x
+                       "clojure.core" (symbol (name x))
+                       "clojure.spec.alpha" (symbol "s" (name x))
+                       x)
                      x))
                  spec))
 
