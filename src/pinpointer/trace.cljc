@@ -6,7 +6,7 @@
             (reverse (drop (count steps1) (rseq steps2))))]
     (if (= (count t) 1)
       (let [{:keys [spec val in]} (first t)]
-        {:spec spec :val val :steps in})
+        [{:spec spec :val val :steps in}])
       (reduce (fn [t [curr next]]
                 (cond-> t
                   (not= (:val curr) (:val next))
