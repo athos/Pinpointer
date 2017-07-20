@@ -56,8 +56,8 @@
 
 (defn- print-headline [nproblems]
   (if (= nproblems 1)
-    (println " 1 spec error was detected:")
-    (println " " nproblems "spec errors were detected:")))
+    (println " Detected 1 spec error:")
+    (println " Detected" nproblems "spec errors:")))
 
 (defn- hline []
   (->> " --------------------------------------------------"
@@ -106,7 +106,7 @@
                                   (str/split it #"\n"))]
              (println "  Expected:" line)
              (doseq [line lines]
-               (println "           " line)))
+               (println "          :" line)))
            (when-let [reason (:reason problem)]
              (println "    Reason:" reason))
            (newline)
