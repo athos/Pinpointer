@@ -1,5 +1,5 @@
-(ns pinpointer.printer
-  (:refer-clojure :exclude [pr prn pr-str])
+(ns pinpointer.formatter
+  #?(:clj (:refer-clojure :exclude [format]))
   (:require [clojure.spec.alpha :as s]
             [fipp.edn :as edn]
             [fipp.engine :as fipp]
@@ -69,7 +69,7 @@
   (let [base-printer (edn/map->EdnPrinter {:symbols {}})]
     (->HighlightPrinter base-printer trace)))
 
-(defn pprint-str [x trace]
+(defn format [x trace]
   (let [printer (highlight-printer trace)]
     (with-out-str
       (fipp/pprint-document (visit/visit printer x) {}))))

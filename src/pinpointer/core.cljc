@@ -1,10 +1,10 @@
 (ns pinpointer.core
-  (:require #?@(:clj ([clansi]))
+  (:require #?(:clj [clansi])
             [clojure.spec.alpha :as s]
             [clojure.string :as str]
             [clojure.walk :as walk]
             [fipp.clojure :as fipp]
-            [pinpointer.printer :as printer]
+            [pinpointer.formatter :as formatter]
             [pinpointer.trace :as trace]))
 
 (def ^:dynamic *colorize-fn*)
@@ -35,7 +35,7 @@
        (colorize :red)))
 
 (defn- format-data [value trace]
-  (let [lines (str/split (printer/pprint-str value trace) #"\n")]
+  (let [lines (str/split (formatter/format value trace) #"\n")]
     (loop [[line & more] lines, highlighting? false, ret []]
       (if-not line
         ret
