@@ -13,12 +13,14 @@
 (defn- highlight [x]
   [:span [:escaped "\000"] x [:escaped "\001"]])
 
-(defn- wrap [f printer x]
-  (cond (empty? (:trace printer))
+(defn- wrap [f {:keys [trace] :as printer} x]
+  (cond (or (empty? trace)
+            ;;FIXME: this condition should be removed
+            (and (= (count trace) 1) (empty? (:steps printer))))
         (highlight (f (:base-printer printer) x))
 
-        (= x (:val (first (:trace printer))))
-        (render (first (:trace printer)) f printer x)
+        (= x (:val (first trace)))
+        (render (first trace) f printer x)
 
         :else (f (:base-printer printer) x)))
 
