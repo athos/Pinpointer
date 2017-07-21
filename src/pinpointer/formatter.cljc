@@ -11,7 +11,7 @@
   (f (:base-printer printer) x))
 
 (defn- highlight [x]
-  [:span [:escaped "\000"] x [:escaped "\001"]])
+  [:span [:escaped "\000"] x [:escaped "\000"]])
 
 (defn- wrap [f {:keys [trace] :as printer} x]
   (cond (or (empty? trace)

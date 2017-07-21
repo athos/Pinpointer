@@ -28,31 +28,44 @@
       (get builtin-colorize-fns colorize none-colorize)
       colorize)))
 
-(defn- wavy-line [start length]
-  (->> (concat (repeat start \space)
-               (repeat length \^))
-       (apply str)
-       (colorize :red)))
+(defn- times [n c]
+  (str/join (repeat n c)))
+
+(defn- space [n]
+  (times n \space))
+
+(defn- wavy-line [n]
+  (colorize :red (times n \^)))
+
+(defn- format-line [line hiliting?]
+  (let [[_ indent line'] (re-matches #"(\s*)(.*)" line)
+        parts (str/split line' #"\000")]
+    (if (= (count parts) 1)
+      (if hiliting?
+        [line (str (space (count indent)) (wavy-line (count line))) true]
+        [line nil false])
+      (loop [parts parts, hiliting? hiliting?, ret [indent], wavy [indent]]
+        (if (empty? parts)
+          [(str/join ret) (str/join wavy) (not hiliting?)]
+          (let [[part & parts] parts]
+            (if hiliting?
+              (recur parts (not hiliting?)
+                     (conj ret (colorize :red part))
+                     (conj wavy (wavy-line (count part))))
+              (recur parts (not hiliting?)
+                     (conj ret part)
+                     (conj wavy (space (count part)))))))))))
 
 (defn- format-data [value trace]
   (let [lines (str/split (formatter/format value trace) #"\n")]
-    (loop [[line & more] lines, highlighting? false, ret []]
+    (loop [[line & more] lines, hiliting? false, ret []]
       (if-not line
         ret
-        (if highlighting?
-          (let [indent (count (re-find #"^\s*" line))
-                [highlight post] (str/split line #"\001")
-                wavy (wavy-line indent (count highlight))
-                highlight (colorize :red highlight)]
-            (recur more false (conj ret (str highlight post) wavy)))
-          (let [[pre highlight] (str/split line #"\000")]
-            (if highlight
-              (let [[highlight' post] (str/split highlight #"\001")
-                    wavy (wavy-line (count pre) (count highlight'))
-                    highlight' (colorize :red highlight')]
-                (recur more (not post)
-                       (conj ret (str pre highlight' post) wavy)))
-              (recur more highlighting? (conj ret line)))))))))
+        (let [[line wavy hiliting?] (format-line line hiliting?)]
+          (recur more
+                 hiliting?
+                 (cond-> (conj ret line)
+                   wavy (conj wavy))))))))
 
 (defn- print-headline [nproblems]
   (if (= nproblems 1)
