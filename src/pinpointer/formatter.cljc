@@ -16,7 +16,7 @@
 (defn- wrap [f {:keys [trace] :as printer} x]
   (cond (or (empty? trace)
             ;;FIXME: this condition should be removed
-            (and (= (count trace) 1) (empty? (:steps printer))))
+            (and (= (count trace) 1) (empty? (:steps (first trace)))))
         (highlight (f (:base-printer printer) x))
 
         (= x (:val (first trace)))
