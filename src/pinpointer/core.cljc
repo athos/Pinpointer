@@ -100,30 +100,30 @@
    (if ed
      (let [{:keys [::s/problems ::s/value] :as ed} (correct-paths ed)
            nproblems (count problems)]
-       (binding [*colorize-fn* (choose-colorize-fn colorize)]
-         (newline)
-         (print-headline nproblems)
-         (hline)
-         (doseq [[i problem trace] (map vector
-                                        (range)
-                                        problems
-                                        (trace/traces ed))
-                 :let [[line & lines] (format-data value trace)]]
-           (printf " (%d/%d)\n\n" (inc i) nproblems)
-           (println "     Input:" line)
-           (doseq [line lines]
-             (println "          :" line))
-           (let [[line & lines] (as-> (:pred problem) it
-                                  (simplify-spec it)
-                                  (with-out-str (fipp/pprint it))
-                                  (str/split it #"\n"))]
-             (println "  Expected:" line)
-             (doseq [line lines]
-               (println "          :" line)))
-           (when-let [reason (:reason problem)]
-             (println "    Reason:" reason))
+       (if-let [traces (try (trace/traces ed) (catch Throwable _ nil))]
+         (binding [*colorize-fn* (choose-colorize-fn colorize)]
            (newline)
-           (hline))))
+           (print-headline nproblems)
+           (hline)
+           (doseq [[i problem trace] (map vector (range) problems traces)
+                   :let [[line & lines] (format-data value trace)]]
+             (printf " (%d/%d)\n\n" (inc i) nproblems)
+             (println "     Input:" line)
+             (doseq [line lines]
+               (println "          :" line))
+             (let [[line & lines] (as-> (:pred problem) it
+                                    (simplify-spec it)
+                                    (with-out-str (fipp/pprint it))
+                                    (str/split it #"\n"))]
+               (println "  Expected:" line)
+               (doseq [line lines]
+                 (println "          :" line)))
+             (when-let [reason (:reason problem)]
+               (println "    Reason:" reason))
+             (newline)
+             (hline)))
+         (do (println "\n(Failed to analyze the spec errors, and will fall back to s/explain-printer)\n")
+             (s/explain-printer ed))))
      (println "Success!!"))))
 
 (defn pinpoint
