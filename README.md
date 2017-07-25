@@ -40,7 +40,7 @@ _Pinpointer_ provides APIs compatible with `explain` and displays the problemati
 nil
 => (p/pinpoint (s/keys :req-un [::x ::y]) {:y 1})
 
-  2 spec errors were detected:
+ Detected 2 spec errors:
  --------------------------------------------------
  (1/2)
 
@@ -88,7 +88,7 @@ nil
 => (f 3)
 ExceptionInfo Call to #'user/f did not conform to spec:
 
- 1 spec error was detected:
+ Detected 1 spec error:
  --------------------------------------------------
  (1/1)
 
