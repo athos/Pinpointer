@@ -5,6 +5,8 @@ Pinpointer aims to enhance `clojure.spec/explain` facility and make it easy to g
 
 **Notice**: Pinpointer is built on top of `clojure.spec`, which is one of the most actively developed new features of Clojure. So, it's very fragile by nature, and its APIs are also highly subject to change.
 
+Pinpointer heavily uses [`spectrace`](https://github.com/athos/spectrace), a fine-grained spec error analyzer, to analyze the errors and report them as precise as possible.
+
 ## Installation
 
 Add the following to your `:dependencies`:
