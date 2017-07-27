@@ -100,14 +100,15 @@
    (if ed
      (let [{:keys [::s/problems ::s/value] :as ed} (correct-paths ed)
            nproblems (count problems)]
-       (if-let [traces (try (trace/traces ed) (catch Throwable _ nil))]
+       (if-let [traces (try (trace/traces ed)
+                            (catch #?(:clj Throwable :cljs js/Error) _))]
          (binding [*colorize-fn* (choose-colorize-fn colorize)]
            (newline)
            (print-headline nproblems)
            (hline)
            (doseq [[i problem trace] (map vector (range) problems traces)
                    :let [[line & lines] (format-data value trace)]]
-             (printf " (%d/%d)\n\n" (inc i) nproblems)
+             (println (str " (" (inc i) "/" nproblems ")\n"))
              (println "     Input:" line)
              (doseq [line lines]
                (println "          :" line))
@@ -131,12 +132,19 @@
   ([spec x opts]
    (pinpoint-out (s/explain-data spec x) opts)))
 
+#?(:clj
+   (defn- find-spec-error [^Throwable t]
+     (when t
+       (let [data (ex-data t)]
+         (if (and data (::s/problems data))
+           t
+           (recur (.getCause t))))))
+
+   :cljs
+   (defn- find-spec-error [e]
+     (when (some-> e ex-data ::s/problems)
+       e)))
+
 (defn ppt []
-  (letfn [(find-spec-error [^Throwable t]
-            (when t
-              (let [data (ex-data t)]
-                (if (and data (::s/problems data))
-                  t
-                  (recur (.getCause t))))))]
-    (when-let [e (find-spec-error *e)]
-      (pinpoint-out (ex-data e)))))
+  (when-let [e (find-spec-error *e)]
+    (pinpoint-out (ex-data e))))
