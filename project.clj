@@ -17,4 +17,7 @@
           :compiler {:output-to "target/main.js"
                      :output-dir "target"
                      :optimizations :whitespace
-                     :pretty-print true}}}})
+                     :pretty-print true}}}}
+
+  :profiles
+  {:dev {:dependencies [[org.clojure/test.check "0.10.0-alpha2"]]}})
