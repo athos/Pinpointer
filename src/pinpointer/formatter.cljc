@@ -5,13 +5,15 @@
             [fipp.engine :as fipp]
             [fipp.visit :as visit]))
 
+(def ^:dynamic *highlighting-mark* "!!!")
+
 (defmulti render
   (fn [{:keys [spec]} f printer x] (when (seq? spec) (first spec))))
 (defmethod render :default [_ f printer x]
   (f (:base-printer printer) x))
 
 (defn- highlight [x]
-  [:span [:escaped "\000"] x [:escaped "\000"]])
+  [:span [:escaped *highlighting-mark*] x [:escaped *highlighting-mark*]])
 
 (defn- wrap [f {:keys [trace] :as printer} x]
   (cond (or (empty? trace)

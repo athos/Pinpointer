@@ -57,7 +57,8 @@
                      (conj wavy (space (count part)))))))))))
 
 (defn- format-data [value trace]
-  (let [lines (str/split (formatter/format value trace) #"\n")]
+  (let [lines (binding [formatter/*highlighting-mark* "\000"]
+                (str/split (formatter/format value trace) #"\n"))]
     (loop [[line & more] lines, hiliting? false, ret []]
       (if-not line
         ret
