@@ -95,6 +95,23 @@
                      x))
                  spec))
 
+(defn- print-error [total value [i problem trace]]
+  (doseq [chunk trace
+          :let [[line & lines] (format-data value chunk)]]
+    (println (str " (" (inc i) "/" total ")\n"))
+    (println "     Input:" line)
+    (doseq [line lines]
+      (println "          :" line))
+    (let [[line & lines] (as-> (:pred problem) it
+                           (simplify-spec it)
+                           (with-out-str (fipp/pprint it))
+                           (str/split it #"\n"))]
+      (println "  Expected:" line)
+      (doseq [line lines]
+        (println "          :" line)))
+    (when-let [reason (:reason problem)]
+      (println "    Reason:" reason))))
+
 (defn pinpoint-out
   ([ed] (pinpoint-out ed {}))
   ([ed {:keys [colorize]}]
@@ -107,21 +124,8 @@
            (newline)
            (print-headline nproblems)
            (hline)
-           (doseq [[i problem trace] (map vector (range) problems traces)
-                   :let [[line & lines] (format-data value trace)]]
-             (println (str " (" (inc i) "/" nproblems ")\n"))
-             (println "     Input:" line)
-             (doseq [line lines]
-               (println "          :" line))
-             (let [[line & lines] (as-> (:pred problem) it
-                                    (simplify-spec it)
-                                    (with-out-str (fipp/pprint it))
-                                    (str/split it #"\n"))]
-               (println "  Expected:" line)
-               (doseq [line lines]
-                 (println "          :" line)))
-             (when-let [reason (:reason problem)]
-               (println "    Reason:" reason))
+           (doseq [t (map vector (range) problems traces)]
+             (print-error nproblems value t)
              (newline)
              (hline)))
          (do (println "\n(Failed to analyze the spec errors, and will fall back to s/explain-printer)\n")
