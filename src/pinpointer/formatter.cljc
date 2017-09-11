@@ -16,15 +16,11 @@
   [:span [:escaped *highlighting-mark*] x [:escaped *highlighting-mark*]])
 
 (defn- wrap [f {:keys [trace] :as printer} x]
-  (cond (or (empty? trace)
-            ;;FIXME: this condition should be removed
-            (and (= (count trace) 1) (empty? (:steps (first trace)))))
-        (highlight (f (:base-printer printer) x))
-
-        (= x (:val (first trace)))
-        (render (first trace) f printer x)
-
-        :else (f (:base-printer printer) x)))
+  (if (= x (:val (first trace)))
+    (if (= (count trace) 1)
+      (highlight (f (:base-printer printer) x))
+      (render (first trace) f printer x))
+    (f (:base-printer printer) x)))
 
 (defn pop-trace [printer]
   (update printer :trace rest))
