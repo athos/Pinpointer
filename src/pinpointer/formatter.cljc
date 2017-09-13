@@ -76,6 +76,15 @@
 ;; Method implementations of `render`
 ;;
 
+(defmethod render `s/and [frame _ printer x]
+  (visit/visit (pop-trace printer) x))
+
+(defmethod render `s/or [frame _ printer x]
+  (visit/visit (pop-trace printer) x))
+
+(defmethod render `s/nilable [frame _ printer x]
+  (visit/visit (pop-trace printer) x))
+
 (defn- pretty-coll [printer open xs sep close f]
   (let [xform (comp (map-indexed #(f printer %1 %2))
                     (interpose sep))
@@ -97,8 +106,10 @@
                      (visit/visit (cond-> printer (= i n) pop-trace) x)))]
      (pretty-coll printer open x sep close each-fn))))
 
-(defmethod render `s/tuple [frame _ printer x]
-  (render-coll frame printer x))
+(defmethod render `s/tuple [{:keys [steps] :as frame} _ printer x]
+  (if (empty? steps)
+    (visit/visit (pop-trace printer) x)
+    (render-coll frame printer x)))
 
 (defn- render-every [{[n] :steps :as frame} printer x]
   (if (map? x)
@@ -132,10 +143,15 @@
   (render-every-kv frame printer x))
 
 (defmethod render `s/keys [{[key] :steps :as frame} _ printer x]
-  (render-coll frame printer x
-    (fn [i [k v]]
-      (let [vprinter (cond-> printer (= k key) pop-trace)]
-        [:span (visit/visit printer k) " " (visit/visit vprinter v)]))))
+  (if (nil? key)
+    (visit/visit (pop-trace printer) x)
+    (render-coll frame printer x
+      (fn [i [k v]]
+        (let [vprinter (cond-> printer (= k key) pop-trace)]
+          [:span (visit/visit printer k) " " (visit/visit vprinter v)])))))
+
+(defmethod render `s/merge [frame _ printer x]
+  (visit/visit (pop-trace printer) x))
 
 (defmethod render `s/cat [frame _ printer x]
   (render-coll frame printer x))
@@ -154,3 +170,9 @@
 
 (defmethod render `s/+ [frame _ printer x]
   (render-coll frame printer x))
+
+(defmethod render `s/multi-spec [frame _ printer x]
+  (visit/visit (pop-trace printer) x))
+
+(defmethod render `s/nonconforming [frame _ printer x]
+  (visit/visit (pop-trace printer) x))
