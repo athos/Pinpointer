@@ -114,13 +114,16 @@
     (render-next printer x)
     (render-coll frame printer x)))
 
-(defn- render-every [{[n] :steps :as frame} printer x]
-  (if (map? x)
-    (render-coll frame printer x
-      (fn [i [k v]]
-        (let [printer (cond-> printer (= i n) pop-trace)]
-          [:span (visit/visit printer k) " " (visit/visit printer v)])))
-    (render-coll frame printer x)))
+(defn- render-every [{:keys [steps] :as frame} printer x]
+  (if (empty? steps)
+    (render-next printer x)
+    (if (map? x)
+      (let [n (first steps)]
+        (render-coll frame printer x
+          (fn [i [k v]]
+            (let [printer (cond-> printer (= i n) pop-trace)]
+              [:span (visit/visit printer k) " " (visit/visit printer v)]))))
+      (render-coll frame printer x))))
 
 (defmethod render `s/every [frame _ printer x]
   (render-every frame printer x))
@@ -128,16 +131,19 @@
 (defmethod render `s/coll-of [frame _ printer x]
   (render-every frame printer x))
 
-(defn- render-every-kv [{[key k-or-v] :steps :as frame} printer x]
-  (render-coll frame printer x
-    (fn [i [k v]]
-      (let [kprinter (cond-> printer
-                       (and (= k key) (= k-or-v 0))
-                       pop-trace)
-            vprinter (cond-> printer
-                       (and (= k key) (= k-or-v 1))
-                       pop-trace)]
-        [:span (visit/visit kprinter k) " " (visit/visit vprinter v)]))))
+(defn- render-every-kv [{:keys [steps] :as frame} printer x]
+  (if (empty? steps)
+    (render-next printer x)
+    (let [[key k-or-v] steps]
+      (render-coll frame printer x
+        (fn [i [k v]]
+          (let [kprinter (cond-> printer
+                           (and (= k key) (= k-or-v 0))
+                           pop-trace)
+                vprinter (cond-> printer
+                           (and (= k key) (= k-or-v 1))
+                           pop-trace)]
+            [:span (visit/visit kprinter k) " " (visit/visit vprinter v)]))))))
 
 (defmethod render `s/every-kv [frame _ printer x]
   (render-every-kv frame printer x))
