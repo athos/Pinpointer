@@ -132,7 +132,7 @@
              (print-error nproblems value t)
              (newline)
              (hline)))
-         (do (println "\n(Failed to analyze the spec errors, and will fall back to s/explain-printer)\n")
+         (do (println "\n[PINPOINTER] Failed to analyze the spec errors, and will fall back to s/explain-printer\n")
              (s/explain-printer ed))))
      (println "Success!!"))))
 
