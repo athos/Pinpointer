@@ -89,8 +89,12 @@
   (walk/postwalk (fn [x]
                    (if (symbol? x)
                      (condp #(= (namespace %2) %1) x
-                       "clojure.core" (symbol (name x))
-                       "clojure.spec.alpha" (symbol "s" (name x))
+                       #?(:clj "clojure.core" :cljs "cljs.core")
+                       (symbol (name x))
+
+                       #?(:clj "clojure.spec.alpha" :cljs "cljs.spec.alpha")
+                       (symbol "s" (name x))
+
                        x)
                      x))
                  spec))
