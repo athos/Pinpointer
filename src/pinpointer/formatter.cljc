@@ -76,14 +76,17 @@
 ;; Method implementations of `render`
 ;;
 
-(defmethod render `s/and [frame _ printer x]
+(defn- render-next [printer x]
   (visit/visit (pop-trace printer) x))
+
+(defmethod render `s/and [frame _ printer x]
+  (render-next printer x))
 
 (defmethod render `s/or [frame _ printer x]
-  (visit/visit (pop-trace printer) x))
+  (render-next printer x))
 
 (defmethod render `s/nilable [frame _ printer x]
-  (visit/visit (pop-trace printer) x))
+  (render-next printer x))
 
 (defn- pretty-coll [printer open xs sep close f]
   (let [xform (comp (map-indexed #(f printer %1 %2))
@@ -108,7 +111,7 @@
 
 (defmethod render `s/tuple [{:keys [steps] :as frame} _ printer x]
   (if (empty? steps)
-    (visit/visit (pop-trace printer) x)
+    (render-next printer x)
     (render-coll frame printer x)))
 
 (defn- render-every [{[n] :steps :as frame} printer x]
@@ -151,7 +154,7 @@
           [:span (visit/visit printer k) " " (visit/visit vprinter v)])))))
 
 (defmethod render `s/merge [frame _ printer x]
-  (visit/visit (pop-trace printer) x))
+  (render-next printer x))
 
 (defmethod render `s/cat [frame _ printer x]
   (render-coll frame printer x))
@@ -172,7 +175,7 @@
   (render-coll frame printer x))
 
 (defmethod render `s/multi-spec [frame _ printer x]
-  (visit/visit (pop-trace printer) x))
+  (render-next printer x))
 
 (defmethod render `s/nonconforming [frame _ printer x]
-  (visit/visit (pop-trace printer) x))
+  (render-next printer x))
