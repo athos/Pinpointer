@@ -105,14 +105,14 @@
     (println (str " (" (inc i) "/" total ")\n"))
     (println "     Input:" line)
     (doseq [line lines]
-      (println "          :" line))
+      (println "           " line))
     (let [[line & lines] (as-> (:pred problem) it
                            (simplify-spec it)
                            (with-out-str (fipp/pprint it))
                            (str/split it #"\n"))]
       (println "  Expected:" line)
       (doseq [line lines]
-        (println "          :" line)))
+        (println "           " line)))
     (when-let [reason (:reason problem)]
       (println "    Reason:" reason))))
 
