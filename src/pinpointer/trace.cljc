@@ -17,17 +17,17 @@
                   suffix (subvec steps1 index)]
               (if (= suffix steps2)
                 (subvec steps1 0 index)
-                steps1)))]
+                steps1)))
+          (add-to-chunk [chunk [curr next]]
+            (conj chunk
+                  (cond-> {:spec (:spec curr)
+                           :val (:val curr)
+                           :steps (if next
+                                    (diff-steps (:in curr) (:in next))
+                                    (:in curr))}
+                    (:reason curr) (assoc :reason (:reason curr)))))]
     (mapv (fn [chunk]
-            (reduce (fn [chunk [curr next]]
-                      (conj chunk
-                            {:spec (:spec curr)
-                             :val (:val curr)
-                             :steps (if next
-                                      (diff-steps (:in curr) (:in next))
-                                      (:in curr))}))
-                    []
-                    (partition 2 1 [nil] chunk)))
+            (reduce add-to-chunk [] (partition 2 1 [nil] chunk)))
           (partition-trace t))))
 
 (defn traces [ed]
