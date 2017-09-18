@@ -199,7 +199,9 @@
   (render-regex frame printer x))
 
 (defmethod render `s/multi-spec [frame _ printer x]
-  (render-next printer x))
+  (if (= (:reason frame) "no method")
+    (highlight (visit/visit (:base-printer printer) x))
+    (render-next printer x)))
 
 (defmethod render `s/nonconforming [frame _ printer x]
   (render-next printer x))
