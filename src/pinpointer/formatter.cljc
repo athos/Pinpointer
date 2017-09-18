@@ -16,11 +16,12 @@
   [:span [:escaped *highlighting-mark*] x [:escaped *highlighting-mark*]])
 
 (defn- wrap [f {:keys [trace] :as printer} x]
-  (if (= x (:val (first trace)))
-    (if (= (count trace) 1)
-      (highlight (f (:base-printer printer) x))
-      (render (first trace) f printer x))
-    (f (:base-printer printer) x)))
+  (let [frame (first trace)]
+    (if (= x (:val frame))
+      (if (and (= (count trace) 1) (not (:reason frame)))
+        (highlight (f (:base-printer printer) x))
+        (render frame f printer x))
+      (f (:base-printer printer) x))))
 
 (defn pop-trace [printer]
   (update printer :trace rest))
@@ -162,23 +163,40 @@
 (defmethod render `s/merge [frame _ printer x]
   (render-next printer x))
 
+(defn- render-regex [{:keys [reason steps] :as frame} printer x]
+  (cond (= reason "Extra input")
+        (let [printer (:base-printer printer)]
+          (render-coll frame printer x
+            (fn [i v]
+              (cond-> (visit/visit printer v)
+                (>= i (first steps)) highlight))))
+
+        (let [next-frame (second (:trace printer))]
+          (and next-frame (= (:reason next-frame) "Insufficient input")))
+        (highlight (visit/visit (:base-printer printer) x))
+
+        (empty? steps)
+        (render-next printer x)
+
+        :else (render-coll frame printer x)))
+
 (defmethod render `s/cat [frame _ printer x]
-  (render-coll frame printer x))
+  (render-regex frame printer x))
 
 (defmethod render `s/& [frame _ printer x]
-  (render-coll frame printer x))
+  (render-regex frame printer x))
 
 (defmethod render `s/alt [frame _ printer x]
-  (render-coll frame printer x))
+  (render-regex frame printer x))
 
 (defmethod render `s/? [frame _ printer x]
-  (render-coll frame printer x))
+  (render-regex frame printer x))
 
 (defmethod render `s/* [frame _ printer x]
-  (render-coll frame printer x))
+  (render-regex frame printer x))
 
 (defmethod render `s/+ [frame _ printer x]
-  (render-coll frame printer x))
+  (render-regex frame printer x))
 
 (defmethod render `s/multi-spec [frame _ printer x]
   (render-next printer x))
