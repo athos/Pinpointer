@@ -2,14 +2,15 @@
   (:require [spectrace.core :as strace]))
 
 (defn- partition-trace [t]
-  (loop [t t, chunk [], ret []]
+  (loop [t t, chunk [], prev nil, ret []]
     (if (empty? t)
       (conj ret chunk)
       (let [{:keys [val snapshots] :as frame} (first t)]
         (if (and (seq snapshots)
-                 (not= (first snapshots) val))
-          (recur (rest t) [frame] (conj ret chunk))
-          (recur (rest t) (conj chunk frame) ret))))))
+                 prev
+                 (not= prev (peek snapshots)))
+          (recur (rest t) [frame] nil (conj ret chunk))
+          (recur (rest t) (conj chunk frame) val ret))))))
 
 (defn- trace [t]
   (letfn [(diff-steps [steps1 steps2]
