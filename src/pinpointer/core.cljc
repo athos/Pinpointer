@@ -132,7 +132,7 @@
               println)
          (print-data "Original" chunk)
          (println (pad-left "Spec" 10))
-         (print-spec "Applied" (:spec (first chunk))))))))
+         (print-spec "Applied" (:spec (peek chunk))))))))
 
 (defn pinpoint-out
   ([ed] (pinpoint-out ed {}))
