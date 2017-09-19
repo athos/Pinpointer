@@ -80,6 +80,9 @@
 (defn- render-next [printer x]
   (visit/visit (pop-trace printer) x))
 
+(defmethod render `s/spec [frame _ printer x]
+  (render-next printer x))
+
 (defmethod render `s/and [frame _ printer x]
   (render-next printer x))
 
