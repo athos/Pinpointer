@@ -123,6 +123,7 @@
      (print-data "Input" chunk)
      (print-spec "Expected" (:pred problem))
      (when-let [reason (:reason problem)]
+       (println (pad-left "Failure " 10))
        (print-with-caption "Reason" reason))
      (when (seq more)
        (doseq [chunk more]
