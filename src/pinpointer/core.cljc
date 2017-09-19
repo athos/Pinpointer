@@ -34,6 +34,9 @@
 (defn- space [n]
   (times n \space))
 
+(defn- pad-left [s n]
+  (str (space (- n (count s))) s))
+
 (defn- wavy-line [n]
   (colorize :red (times n \^)))
 
@@ -100,21 +103,35 @@
                  spec))
 
 (defn- print-error [total value [i problem trace]]
-  (doseq [chunk trace
-          :let [[line & lines] (format-data value chunk)]]
-    (println (str " (" (inc i) "/" total ")\n"))
-    (println "     Input:" line)
-    (doseq [line lines]
-      (println "           " line))
-    (let [[line & lines] (as-> (:pred problem) it
-                           (simplify-spec it)
-                           (with-out-str (fipp/pprint it))
-                           (str/split it #"\n"))]
-      (println "  Expected:" line)
-      (doseq [line lines]
-        (println "           " line)))
-    (when-let [reason (:reason problem)]
-      (println "    Reason:" reason))))
+  (letfn [(print-with-caption [caption s]
+            (println (str (pad-left caption 10) \:) s))
+          (print-data [caption chunk]
+            (let [[line & lines] (format-data (:val (first chunk)) chunk)]
+              (print-with-caption caption line)
+              (doseq [line lines]
+                (println "           " line))))
+          (print-spec [caption spec]
+            (let [[line & lines] (as-> spec it
+                                   (simplify-spec it)
+                                   (with-out-str (fipp/pprint it))
+                                   (str/split it #"\n"))]
+              (print-with-caption caption line)
+              (doseq [line lines]
+                (println "           " line))))]
+   (let [[chunk & more] (rseq trace)]
+     (println (str " (" (inc i) "/" total ")\n"))
+     (print-data "Input" chunk)
+     (print-spec "Expected" (:pred problem))
+     (when-let [reason (:reason problem)]
+       (print-with-caption "Reason" reason))
+     (when (seq more)
+       (doseq [chunk more]
+         (->> "\n    --- This comes originally from ---\n"
+              (colorize :cyan)
+              println)
+         (print-data "Original" chunk)
+         (println (pad-left "Spec" 10))
+         (print-spec "Applied" (:spec (first chunk))))))))
 
 (defn pinpoint-out
   ([ed] (pinpoint-out ed {}))
