@@ -5,12 +5,14 @@
   (loop [t t, chunk [], prev nil, ret []]
     (if (empty? t)
       (conj ret chunk)
-      (let [{:keys [val snapshots] :as frame} (first t)]
+      (let [{:keys [snapshots] :as frame} (first t)]
         (if (and (seq snapshots)
                  prev
-                 (not= prev (peek snapshots)))
-          (recur (rest t) [frame] nil (conj ret chunk))
-          (recur (rest t) (conj chunk frame) val ret))))))
+                 (not= (:val prev) (peek snapshots)))
+          (let [val (peek snapshots)
+                new-chunk [(assoc prev :val val) frame]]
+            (recur (rest t) new-chunk frame (conj ret chunk)))
+          (recur (rest t) (conj chunk frame) frame ret))))))
 
 (defn- trace [t]
   (letfn [(diff-steps [steps1 steps2]
