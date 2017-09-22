@@ -172,6 +172,8 @@
      (when (some-> e ex-data ::s/problems)
        e)))
 
-(defn ppt []
-  (when-let [e (find-spec-error *e)]
-    (pinpoint-out (ex-data e))))
+(defn ppt
+  ([] (ppt {}))
+  ([opts]
+   (when-let [e (find-spec-error *e)]
+     (pinpoint-out (ex-data e) opts))))
