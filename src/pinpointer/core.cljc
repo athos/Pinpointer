@@ -5,9 +5,13 @@
             [clojure.walk :as walk]
             [fipp.clojure :as fipp]
             [pinpointer.formatter :as formatter]
-            [pinpointer.trace :as trace]))
+            [pinpointer.trace :as trace]
+            [spectrace.core :as strace]))
 
-(def ^:dynamic *colorize-fn*)
+(def ^:dynamic *eval-fn*
+  strace/*eval-fn*)
+
+(def ^:dynamic ^:private *colorize-fn*)
 
 (defn- colorize [color s]
   (*colorize-fn* color s))
@@ -140,8 +144,10 @@
    (if ed
      (let [{:keys [::s/problems ::s/value] :as ed} (correct-paths ed)
            nproblems (count problems)]
-       (if-let [traces (try (trace/traces ed)
-                            (catch #?(:clj Throwable :cljs js/Error) _))]
+       (if-let [traces (try
+                         (binding [strace/*eval-fn* *eval-fn*]
+                           (trace/traces ed))
+                         (catch #?(:clj Throwable :cljs js/Error) _))]
          (binding [*colorize-fn* (choose-colorize-fn colorize)]
            (newline)
            (print-headline nproblems)
