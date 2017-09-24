@@ -63,9 +63,9 @@
                      (conj ret part)
                      (conj wavy (space (count part)))))))))))
 
-(defn- format-data [value trace]
+(defn- format-data [value trace opts]
   (let [lines (binding [formatter/*highlighting-mark* "\000"]
-                (str/split (formatter/format value trace) #"\n"))]
+                (str/split (formatter/format value trace opts) #"\n"))]
     (loop [[line & more] lines, hiliting? false, ret []]
       (if-not line
         ret
@@ -80,8 +80,8 @@
     (println " Detected 1 spec error:")
     (println " Detected" nproblems "spec errors:")))
 
-(defn- hline []
-  (->> " --------------------------------------------------"
+(defn- hline [width]
+  (->> (str " " (times (- width 2) \-) " ")
        (colorize :cyan)
        println))
 
@@ -106,18 +106,19 @@
                      x))
                  spec))
 
-(defn- print-error [total value [i problem trace]]
+(defn- print-error [total value [i problem trace] opts]
   (letfn [(print-with-caption [caption s]
             (println (str (pad-left caption 10) \:) s))
           (print-data [caption chunk]
-            (let [[line & lines] (format-data (:val (first chunk)) chunk)]
+            (let [val (:val (first chunk))
+                  [line & lines] (format-data val chunk opts)]
               (print-with-caption caption line)
               (doseq [line lines]
                 (println "           " line))))
           (print-spec [caption spec]
             (let [[line & lines] (as-> spec it
                                    (simplify-spec it)
-                                   (with-out-str (fipp/pprint it))
+                                   (with-out-str (fipp/pprint it opts))
                                    (str/split it #"\n"))]
               (print-with-caption caption line)
               (doseq [line lines]
@@ -140,7 +141,8 @@
 
 (defn pinpoint-out
   ([ed] (pinpoint-out ed {}))
-  ([ed {:keys [colorize fallback-on-error] :or {fallback-on-error true}}]
+  ([ed {:keys [width colorize fallback-on-error]
+        :or {width 70, fallback-on-error true}}]
    (if ed
      (let [{:keys [::s/problems ::s/value] :as ed} (correct-paths ed)
            nproblems (count problems)
@@ -152,11 +154,11 @@
              (binding [*colorize-fn* (choose-colorize-fn colorize)]
                (newline)
                (print-headline nproblems)
-               (hline)
+               (hline width)
                (doseq [t (map vector (range) problems traces)]
-                 (print-error nproblems value t)
+                 (print-error nproblems value t {:width width})
                  (newline)
-                 (hline)))
+                 (hline width)))
 
              fallback-on-error
              (do (println "[PINPOINTER] Failed to analyze the spec errors, and will fall back to s/explain-printer\n")
