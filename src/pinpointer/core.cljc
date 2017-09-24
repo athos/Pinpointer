@@ -140,24 +140,29 @@
 
 (defn pinpoint-out
   ([ed] (pinpoint-out ed {}))
-  ([ed {:keys [colorize]}]
+  ([ed {:keys [colorize fallback-on-error] :or {fallback-on-error true}}]
    (if ed
      (let [{:keys [::s/problems ::s/value] :as ed} (correct-paths ed)
-           nproblems (count problems)]
-       (if-let [traces (try
-                         (binding [strace/*eval-fn* *eval-fn*]
-                           (trace/traces ed))
-                         (catch #?(:clj Throwable :cljs js/Error) _))]
-         (binding [*colorize-fn* (choose-colorize-fn colorize)]
-           (newline)
-           (print-headline nproblems)
-           (hline)
-           (doseq [t (map vector (range) problems traces)]
-             (print-error nproblems value t)
-             (newline)
-             (hline)))
-         (do (println "\n[PINPOINTER] Failed to analyze the spec errors, and will fall back to s/explain-printer\n")
-             (s/explain-printer ed))))
+           nproblems (count problems)
+           traces (try
+                    (binding [strace/*eval-fn* *eval-fn*]
+                      (trace/traces ed))
+                    (catch #?(:clj Throwable :cljs :default) e e))]
+       (cond (vector? traces)
+             (binding [*colorize-fn* (choose-colorize-fn colorize)]
+               (newline)
+               (print-headline nproblems)
+               (hline)
+               (doseq [t (map vector (range) problems traces)]
+                 (print-error nproblems value t)
+                 (newline)
+                 (hline)))
+
+             fallback-on-error
+             (do (println "[PINPOINTER] Failed to analyze the spec errors, and will fall back to s/explain-printer\n")
+                 (s/explain-printer ed))
+
+             :else (throw traces)))
      (println "Success!!"))))
 
 (defn pinpoint
