@@ -77,11 +77,11 @@
 
 (defn- print-headline [nproblems]
   (if (= nproblems 1)
-    (println " Detected 1 spec error:")
-    (println " Detected" nproblems "spec errors:")))
+    (println "Detected 1 spec error:")
+    (println "Detected" nproblems "spec errors:")))
 
 (defn- hline [width]
-  (->> (str " " (times (- width 2) \-) " ")
+  (->> (str (times width \-))
        (colorize :cyan)
        println))
 
@@ -108,13 +108,13 @@
 
 (defn- print-error [total value [i problem trace] opts]
   (letfn [(print-with-caption [caption s]
-            (println (str (pad-left caption 10) \:) s))
+            (println (str (pad-left caption 9) \:) s))
           (print-data [caption chunk]
             (let [val (:val (first chunk))
                   [line & lines] (format-data val chunk opts)]
               (print-with-caption caption line)
               (doseq [line lines]
-                (println "           " line))))
+                (println "          " line))))
           (print-spec [caption spec]
             (let [[line & lines] (as-> spec it
                                    (simplify-spec it)
@@ -122,21 +122,21 @@
                                    (str/split it #"\n"))]
               (print-with-caption caption line)
               (doseq [line lines]
-                (println "           " line))))]
+                (println "          " line))))]
    (let [[chunk & more] (rseq trace)]
-     (println (str " (" (inc i) "/" total ")\n"))
+     (println (str "(" (inc i) "/" total ")\n"))
      (print-data "Input" chunk)
      (print-spec "Expected" (:pred problem))
      (when-let [reason (:reason problem)]
-       (println (pad-left "Failure " 10))
+       (println (pad-left "Failure " 9))
        (print-with-caption "Reason" reason))
      (when (seq more)
        (doseq [chunk more]
-         (->> "\n    --- This comes originally from ---\n"
+         (->> "\n   --- This comes originally from ---\n"
               (colorize :cyan)
               println)
          (print-data "Original" chunk)
-         (println (pad-left "Spec" 10))
+         (println (pad-left "Spec" 9))
          (print-spec "Applied" (:spec (peek chunk))))))))
 
 (defn pinpoint-out
@@ -152,11 +152,10 @@
                     (catch #?(:clj Throwable :cljs :default) e e))]
        (cond (vector? traces)
              (binding [*colorize-fn* (choose-colorize-fn colorize)]
-               (newline)
                (print-headline nproblems)
                (hline width)
                (doseq [t (map vector (range) problems traces)]
-                 (print-error nproblems value t {:width width})
+                 (print-error nproblems value t {:width (max (- width 11) 0)})
                  (newline)
                  (hline width)))
 
