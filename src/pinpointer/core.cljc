@@ -139,6 +139,8 @@
          (println (pad-left "Spec" 9))
          (print-spec "Applied" (:spec (peek chunk))))))))
 
+(defonce ^:private last-explain-data (atom nil))
+
 (defn pinpoint-out
   ([ed] (pinpoint-out ed {}))
   ([ed {:keys [width colorize fallback-on-error]
@@ -151,13 +153,15 @@
                       (trace/traces ed'))
                     (catch #?(:clj Throwable :cljs :default) e e))]
        (cond (vector? traces)
-             (binding [*colorize-fn* (choose-colorize-fn colorize)]
-               (print-headline nproblems)
-               (hline width)
-               (doseq [t (map vector (range) problems traces)]
-                 (print-error nproblems value t {:width (max (- width 11) 0)})
-                 (newline)
-                 (hline width)))
+             (do (reset! last-explain-data ed)
+                 (binding [*colorize-fn* (choose-colorize-fn colorize)]
+                   (print-headline nproblems)
+                   (hline width)
+                   (doseq [t (map vector (range) problems traces)]
+                     (print-error nproblems value t
+                                  {:width (max (- width 11) 0)})
+                     (newline)
+                     (hline width))))
 
              fallback-on-error
              (do (println "[PINPOINTER] Failed to analyze the spec errors, and will fall back to s/explain-printer\n")
@@ -170,6 +174,11 @@
   ([spec x] (pinpoint spec x {}))
   ([spec x opts]
    (pinpoint-out (s/explain-data spec x) opts)))
+
+(defn playback
+  ([] (playback {}))
+  ([opts]
+   (pinpoint-out @last-explain-data opts)))
 
 #?(:clj
    (defn- find-spec-error [^Throwable t]
