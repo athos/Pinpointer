@@ -1,5 +1,5 @@
 (defproject pinpointer "0.1.0-SNAPSHOT"
-  :description "Pinpointer makes it easy to grasp which part of data is causing the spec error"
+  :description "Pinpointer is yet another spec error reporter with sophisticated error analysis"
   :url "https://github.com/athos/Pinpointer"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
