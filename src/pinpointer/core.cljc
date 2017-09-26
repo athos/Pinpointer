@@ -144,11 +144,11 @@
   ([ed {:keys [width colorize fallback-on-error]
         :or {width 70, fallback-on-error true}}]
    (if ed
-     (let [{:keys [::s/problems ::s/value] :as ed} (correct-paths ed)
+     (let [{:keys [::s/problems ::s/value] :as ed'} (correct-paths ed)
            nproblems (count problems)
            traces (try
                     (binding [strace/*eval-fn* *eval-fn*]
-                      (trace/traces ed))
+                      (trace/traces ed'))
                     (catch #?(:clj Throwable :cljs :default) e e))]
        (cond (vector? traces)
              (binding [*colorize-fn* (choose-colorize-fn colorize)]
