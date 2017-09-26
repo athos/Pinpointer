@@ -41,23 +41,22 @@ _Pinpointer_ provides APIs compatible with `explain` and displays the problemati
 => (require '[pinpointer.core :as p])
 nil
 => (p/pinpoint (s/keys :req-un [::x ::y]) {:y 1})
+Detected 2 spec errors:
+----------------------------------------------------------------------
+(1/2)
 
- Detected 2 spec errors:
- --------------------------------------------------
- (1/2)
+    Input: {:y 1}
+           ^^^^^^
+ Expected: (fn [%] (contains? % :x))
 
-     Input: {:y 1}
-            ^^^^^^
-  Expected: (fn [%] (contains? % :x))
+----------------------------------------------------------------------
+(2/2)
 
- --------------------------------------------------
- (2/2)
+    Input: {:y 1}
+               ^
+ Expected: string?
 
-     Input: {:y 1}
-                ^
-  Expected: string?
-
- --------------------------------------------------
+----------------------------------------------------------------------
 nil
 =>
 ```
@@ -89,16 +88,15 @@ nil
 [user/f]
 => (f 3)
 ExceptionInfo Call to #'user/f did not conform to spec:
+Detected 1 spec error:
+----------------------------------------------------------------------
+(1/1)
 
- Detected 1 spec error:
- --------------------------------------------------
- (1/1)
+    Input: (3)
+            ^
+ Expected: even?
 
-     Input: (3)
-             ^
-  Expected: even?
-
- --------------------------------------------------
+----------------------------------------------------------------------
   clojure.core/ex-info (core.clj:4725)
 =>
 ```
