@@ -9,7 +9,8 @@
                  [fipp "0.6.8"]
                  [spectrace "0.1.0-SNAPSHOT"]]
 
-  :plugins [[lein-cljsbuild "1.1.4"]
+  :plugins [[lein-cloverage "1.0.9"]
+            [lein-cljsbuild "1.1.4"]
             [lein-eftest "0.3.1"]]
 
   :cljsbuild
