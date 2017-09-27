@@ -31,8 +31,8 @@ jobs:
           name: test
           command: lein test-all
 
-      - run:
-          name: code-coverage
-          command: |
-            CLOVERAGE_VERSION=1.0.9 lein cloverage --codecov
-            bash <(curl -s https://codecov.io/bash) -f target/coverage/codecov.json
+      #- run:
+      #    name: code-coverage
+      #    command: |
+      #      CLOVERAGE_VERSION=1.0.9 lein cloverage --codecov
+      #      bash <(wget -q -O - https://codecov.io/bash) -f target/coverage/codecov.json
