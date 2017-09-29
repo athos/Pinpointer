@@ -13,4 +13,16 @@
         :steps [:b 1]}
        {:spec `(s/coll-of (s/spec integer?)) :val ["3"] :steps [0]}
        {:spec `(s/spec integer?) :val "3" :steps []}
-       {:spec `integer? :val "3" :steps []}]]]))
+       {:spec `integer? :val "3" :steps []}]]]
+
+    (s/cat :first integer? :second integer?)
+    [1]
+    [[[{:spec `(s/cat :first integer? :second integer?) :val [1] :steps []}
+       {:spec `integer? :val [1] :steps [] :reason "Insufficient input"}]]]
+
+    (s/cat :first integer? :second integer?)
+    [1 2 3]
+    [[[{:spec `(s/cat :first integer? :second integer?)
+        :val [1 2 3]
+        :steps [2]
+        :reason "Extra input"}]]]))
