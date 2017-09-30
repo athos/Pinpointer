@@ -3,6 +3,9 @@
             [clojure.spec.alpha :as s]
             [pinpointer.trace :as trace]))
 
+(defmulti shape-spec :type)
+(s/def ::shape (s/multi-spec shape-spec :type))
+
 (deftest trace-test
   (are [spec input expected]
       (= expected (trace/traces (s/explain-data spec input)))
@@ -25,4 +28,11 @@
     [[[{:spec `(s/cat :first integer? :second integer?)
         :val [1 2 3]
         :steps [2]
-        :reason "Extra input"}]]]))
+        :reason "Extra input"}]]]
+
+    ::shape
+    {:type :circle}
+    [[[{:spec `(s/multi-spec shape-spec :type)
+        :val {:type :circle}
+        :steps []
+        :reason "no method"}]]]))
