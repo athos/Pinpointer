@@ -6,6 +6,8 @@
 (defmulti shape-spec :type)
 (s/def ::shape (s/multi-spec shape-spec :type))
 
+(s/def ::id integer?)
+
 (deftest trace-test
   (are [spec input expected]
       (= expected (trace/traces (s/explain-data spec input)))
@@ -35,4 +37,46 @@
     [[[{:spec `(s/multi-spec shape-spec :type)
         :val {:type :circle}
         :steps []
-        :reason "no method"}]]]))
+        :reason "no method"}]]]
+
+    (s/and string?
+           (s/conformer seq)
+           (s/coll-of #{\a \b \c}))
+    "abcdab"
+    [[[{:spec `(s/and string?
+                      (s/conformer seq)
+                      (s/coll-of #{\a \b \c}))
+        :val "abcdab"
+        ;; TODO: the following field value looks somewhat weird,
+        ;; so we may need to reconsider the result spec in the future
+        :steps [3]}]
+      [{:spec `(s/and string?
+                      (s/conformer seq)
+                      (s/coll-of #{\a \b \c}))
+        :val '(\a \b \c \d \a \b)
+        :steps []}
+       {:spec `(s/coll-of #{\a \b \c})
+        :val '(\a \b \c \d \a \b)
+        :steps [3]}
+       {:spec #{\a \b \c} :val \d :steps []}]]]
+
+    (s/and (s/map-of ::id (s/keys :req-un [::id]))
+           (s/coll-of (s/spec (fn [[id m]] (= id (:id m))))))
+    {1 {:id 1} 2 {:id 3}}
+    [[[{:spec `(s/and (s/map-of ::id (s/keys :req-un [::id]))
+                      (s/coll-of
+                        (s/spec (fn [[~'id ~'m]] (= ~'id (:id ~'m))))))
+        :val {1 {:id 1} 2 {:id 3}}
+        :steps []}
+       {:spec `(s/coll-of (s/spec (fn [[~'id ~'m]] (= ~'id (:id ~'m)))))
+        :val {1 {:id 1} 2 {:id 3}}
+        :steps [1]}]
+      [{:spec `(s/coll-of (s/spec (fn [[~'id ~'m]] (= ~'id (:id ~'m)))))
+        :val [[1 {:id 1}] [2 {:id 3}]]
+        :steps [1]}
+       {:spec `(s/spec (fn [[~'id ~'m]] (= ~'id (:id ~'m))))
+        :val [2 {:id 3}]
+        :steps []}
+       {:spec `(fn [[~'id ~'m]] (= ~'id (:id ~'m)))
+        :val [2 {:id 3}]
+        :steps []}]]]))
