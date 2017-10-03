@@ -60,23 +60,28 @@
         :steps [3]}
        {:spec #{\a \b \c} :val \d :steps []}]]]
 
-    (s/and (s/map-of ::id (s/keys :req-un [::id]))
-           (s/coll-of (s/spec (fn [[id m]] (= id (:id m))))))
-    {1 {:id 1} 2 {:id 3}}
-    [[[{:spec `(s/and (s/map-of ::id (s/keys :req-un [::id]))
-                      (s/coll-of
-                        (s/spec (fn [[~'id ~'m]] (= ~'id (:id ~'m))))))
-        :val {1 {:id 1} 2 {:id 3}}
-        :steps []}
-       {:spec `(s/coll-of (s/spec (fn [[~'id ~'m]] (= ~'id (:id ~'m)))))
-        :val {1 {:id 1} 2 {:id 3}}
-        :steps [1]}]
-      [{:spec `(s/coll-of (s/spec (fn [[~'id ~'m]] (= ~'id (:id ~'m)))))
-        :val [[1 {:id 1}] [2 {:id 3}]]
-        :steps [1]}
-       {:spec `(s/spec (fn [[~'id ~'m]] (= ~'id (:id ~'m))))
-        :val [2 {:id 3}]
-        :steps []}
-       {:spec `(fn [[~'id ~'m]] (= ~'id (:id ~'m)))
-        :val [2 {:id 3}]
-        :steps []}]]]))
+    ;; eval is necessary to test the following case, but I don't
+    ;; know how we can prepare it for CLJS at the moment.
+    #?@(:clj
+        ((s/and (s/map-of ::id (s/keys :req-un [::id]))
+                (s/coll-of (s/spec (fn [[id m]] (= id (:id m))))))
+         {1 {:id 1} 2 {:id 3}}
+         [[[{:spec `(s/and (s/map-of ::id (s/keys :req-un [::id]))
+                           (s/coll-of
+                            (s/spec (fn [[~'id ~'m]] (= ~'id (:id ~'m))))))
+             :val {1 {:id 1} 2 {:id 3}}
+             :steps []}
+            {:spec `(s/coll-of (s/spec (fn [[~'id ~'m]] (= ~'id (:id ~'m)))))
+             :val {1 {:id 1} 2 {:id 3}}
+             :steps [1]}]
+           [{:spec `(s/coll-of (s/spec (fn [[~'id ~'m]] (= ~'id (:id ~'m)))))
+             :val [[1 {:id 1}] [2 {:id 3}]]
+             :steps [1]}
+            {:spec `(s/spec (fn [[~'id ~'m]] (= ~'id (:id ~'m))))
+             :val [2 {:id 3}]
+             :steps []}
+            {:spec `(fn [[~'id ~'m]] (= ~'id (:id ~'m)))
+             :val [2 {:id 3}]
+             :steps []}]]]))
+
+    ))
