@@ -3,6 +3,9 @@
   :url "https://github.com/athos/Pinpointer"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
+
+  :test-paths ["test/cljc"]
+
   :dependencies [[org.clojure/clojure "1.9.0-alpha19" :scope "provided"]
                  [org.clojure/clojurescript "1.9.908" :scope "provided"]
                  [clansi "1.0.0"]
