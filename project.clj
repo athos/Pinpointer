@@ -14,20 +14,30 @@
 
   :plugins [[lein-cloverage "1.0.9"]
             [lein-cljsbuild "1.1.4"]
+            [lein-doo "0.1.8"]
             [lein-eftest "0.3.1"]]
 
-  :cljsbuild
-  {:builds
-   {:dev {:source-paths ["src"]
-          :compiler {:output-to "target/main.js"
-                     :output-dir "target"
-                     :optimizations :whitespace
-                     :pretty-print true}}}}
+  :cljsbuild {:builds [{:id "test"
+                        :source-paths ["src" "test/cljc" "test/cljs"]
+                        :compiler {:output-to "target/out/test.js"
+                                   :output-dir "target/out"
+                                   :main pinpointer.runner
+                                   :optimizations :none}}
+                       {:id "nashorn-test"
+                        :source-paths ["src" "test/cljc" "test/cljs"]
+                        :compiler {:output-to "target/nashorn_out/test.js"
+                                   :output-dir "target/nashorn_out"
+                                   :main pinpointer.runner
+                                   :optimizations :whitespace}}]}
 
   :eftest {:report eftest.report.pretty/report}
 
   :profiles
   {:dev {:dependencies [[org.clojure/test.check "0.10.0-alpha2"]]}}
 
-  :aliases {"test-all" ["do" ["test-clj"]]
-            "test-clj" ["eftest"]})
+  :aliases {"test-all" ["do" ["test-clj"] ["test-cljs"]]
+            "test-clj" ["eftest"]
+            "test-cljs" ["do" ["test-cljs-none" "once"]
+                              ["test-cljs-nashorn" "once"]]
+            "test-cljs-none" ["doo" "phantom" "test"]
+            "test-cljs-nashorn" ["doo" "nashorn" "nashorn-test"]})

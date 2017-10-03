@@ -1,3 +1,3 @@
 (ns pinpointer.core-test
-  (:require [clojure.test :refer :all]
-            [pinpointer.core :refer :all]))
+  (:require [clojure.test :refer [deftest is]]
+            [pinpointer.core :as p]))
