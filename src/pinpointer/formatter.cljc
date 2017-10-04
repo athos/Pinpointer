@@ -178,7 +178,12 @@
 
         (let [next-frame (second (:trace printer))]
           (and next-frame (= (:reason next-frame) "Insufficient input")))
-        (highlight (visit/visit (:base-printer printer) x))
+        (let [printer (:base-printer printer)
+              x (if (seq? x) (concat x ['...]) (conj x '...))]
+          (render-coll frame printer x
+            (fn [i v]
+              (cond-> (visit/visit printer v)
+                (= i (dec (count x))) highlight))))
 
         (empty? steps)
         (render-next printer x)
