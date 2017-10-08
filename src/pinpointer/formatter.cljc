@@ -170,8 +170,9 @@
               (cond-> (visit/visit printer v)
                 (>= i (first steps)) highlight))))
 
-        (let [next-frame (second (:trace printer))]
-          (and next-frame (= (:reason next-frame) "Insufficient input")))
+        (or (= reason "Insufficient input") ;; special case for s/alt
+            (when-let [next-frame (second (:trace printer))]
+              (= (:reason next-frame) "Insufficient input")))
         (let [printer (:base-printer printer)
               x (if (seq? x) (concat x ['...]) (conj x '...))]
           (render-coll frame printer x
