@@ -7,6 +7,13 @@
 (s/def ::x integer?)
 (s/def ::y string?)
 
+(defmulti shape-spec :type)
+(s/def ::shape (s/multi-spec shape-spec :type))
+
+(s/def ::radius number?)
+(defmethod shape-spec :circle [_]
+  (s/keys :req-un [::radius]))
+
 (deftest format-test
   (are [spec input result]
       (= result
@@ -91,5 +98,13 @@
     {:y 42}
     ["!!!{:y 42}!!!\n"
      "{:y !!!42!!!}\n"]
+
+    ::shape
+    {:type :rectangle}
+    ["!!!{:type :rectangle}!!!\n"]
+
+    ::shape
+    {:type :circle :radius "100"}
+    ["{:type :circle, :radius !!!\"100\"!!!}\n"]
 
     ))
