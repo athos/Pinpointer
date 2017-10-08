@@ -27,6 +27,11 @@
     3
     [["!!!3!!!\n"]]
 
+    (s/and string? (s/conformer seq) (s/* #{\a \b}))
+    "abcab"
+    [["!!!\"abcab\"!!!\n"
+      "(\\a \\b !!!\\c!!! \\a \\b)\n"]]
+
     (s/or :i integer? :s string?)
     :foo
     [["!!!:foo!!!\n"] ["!!!:foo!!!\n"]]
@@ -60,6 +65,13 @@
     [1 :foo 'bar]
     [["[1 !!!:foo!!! bar]\n"]
      ["[1 :foo !!!bar!!!]\n"]]
+
+    #?@(:clj
+        ((s/coll-of (s/spec (fn [[id m]] (= id (:id m)))))
+         {1 {:id 1} 2 {:id 3}}
+         [["!!!{1 {:id 1}, 2 {:id 3}}!!!\n"
+           "([1 {:id 1}] !!![2 {:id 3}]!!!)\n"]]
+         ))
 
     (s/every-kv keyword? integer?)
     42
