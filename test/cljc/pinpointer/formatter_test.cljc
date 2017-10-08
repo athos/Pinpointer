@@ -67,6 +67,11 @@
     [["[1 !!!:foo!!! bar]\n"]
      ["[1 :foo !!!bar!!!]\n"]]
 
+    (s/coll-of (s/spec integer?))
+    #{1 :foo 3}
+    [["!!!#{1 3 :foo}!!!\n"
+      "(1 3 !!!:foo!!!)\n"]]
+
     #?@(:clj
         ((s/coll-of (s/spec (fn [[id m]] (= id (:id m)))))
          {1 {:id 1} 2 {:id 3}}
