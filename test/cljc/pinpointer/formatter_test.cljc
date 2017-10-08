@@ -30,7 +30,8 @@
     (s/and string? (s/conformer seq) (s/* #{\a \b}))
     "abcab"
     [["!!!\"abcab\"!!!\n"
-      "(\\a \\b !!!\\c!!! \\a \\b)\n"]]
+      #?(:clj "(\\a \\b !!!\\c!!! \\a \\b)\n"
+         :cljs "(\"a\" \"b\" !!!\"c\"!!! \"a\" \"b\")\n")]]
 
     (s/or :i integer? :s string?)
     :foo
