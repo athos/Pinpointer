@@ -110,6 +110,92 @@
     [["!!!{:y 42}!!!\n"]
      ["{:y !!!42!!!}\n"]]
 
+    (s/cat :i integer? :s string?)
+    42
+    [["!!!42!!!\n"]]
+
+    (s/cat :i integer? :s string?)
+    [1]
+    [["[1 !!!...!!!]\n"]]
+
+    (s/cat :i integer? :s string?)
+    [1 "foo" 3 4]
+    [["[1 \"foo\" !!!3!!! !!!4!!!]\n"]]
+
+    (s/cat :i integer? :s string?)
+    [1 :foo]
+    [["[1 !!!:foo!!!]\n"]]
+
+    (s/alt :i integer? :s string?)
+    42
+    [["!!!42!!!\n"]]
+
+    (s/alt :i integer? :s string?)
+    []
+    [["[!!!...!!!]\n"]]
+
+    (s/alt :i integer? :s string?)
+    [:foo]
+    [["[!!!:foo!!!]\n"]
+     ["[!!!:foo!!!]\n"]]
+
+    (s/alt :one integer? :two (s/cat :first integer? :second integer?))
+    [1 2 3 4]
+    [["[1 2 !!!3!!! !!!4!!!]\n"]]
+
+    (s/alt :two (s/cat :first integer? :second integer?)
+           :three (s/cat :first integer? :second integer? :third integer?))
+    [1]
+    [["[1 !!!...!!!]\n"]]
+
+    (s/? integer?)
+    42
+    [["!!!42!!!\n"]]
+
+    (s/? integer?)
+    [:foo]
+    [["[!!!:foo!!!]\n"]]
+
+    (s/? integer?)
+    [1 2 3]
+    [["[1 !!!2!!! !!!3!!!]\n"]]
+
+    (s/? (s/cat :int integer? :str string?))
+    [1 "foo" 'bar]
+    [["[1 \"foo\" !!!bar!!!]\n"]]
+
+    (s/* integer?)
+    42
+    [["!!!42!!!\n"]]
+
+    (s/* (s/cat :i integer? :s string?))
+    [1 "foo" 2]
+    [["[1 \"foo\" 2 !!!...!!!]\n"]]
+
+    (s/* (s/cat :i integer? :s string?))
+    [1 "foo" 2 :bar]
+    [["[1 \"foo\" 2 !!!:bar!!!]\n"]]
+
+    (s/+ integer?)
+    42
+    [["!!!42!!!\n"]]
+
+    (s/+ integer?)
+    []
+    [["[!!!...!!!]\n"]]
+
+    (s/+ integer?)
+    [:foo]
+    [["[!!!:foo!!!]\n"]]
+
+    (s/+ (s/cat :i integer? :s string?))
+    [1 "foo" 2]
+    [["[1 \"foo\" 2 !!!...!!!]\n"]]
+
+    (s/+ (s/cat :i integer? :s string?))
+    [1 "foo" 2 :bar]
+    [["[1 \"foo\" 2 !!!:bar!!!]\n"]]
+
     ::shape
     {:type :rectangle}
     [["!!!{:type :rectangle}!!!\n"]]
