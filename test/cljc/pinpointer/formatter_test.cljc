@@ -29,6 +29,14 @@
     :foo
     ["!!!:foo!!!\n" "!!!:foo!!!\n"]
 
+    (s/tuple integer? string?)
+    42
+    ["!!!42!!!\n"]
+
+    (s/tuple integer? string?)
+    [1 :foo]
+    ["[1 !!!:foo!!!]\n"]
+
     (s/every (s/spec integer?))
     42
     ["!!!42!!!\n"]
