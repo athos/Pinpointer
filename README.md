@@ -1,6 +1,7 @@
 # Pinpointer
 [![Clojars Project](https://img.shields.io/clojars/v/pinpointer.svg)](https://clojars.org/pinpointer)
 [![CircleCI](https://circleci.com/gh/athos/Pinpointer.svg?style=shield)](https://circleci.com/gh/athos/Pinpointer)
+[![codecov](https://codecov.io/gh/athos/Pinpointer/branch/master/graph/badge.svg)](https://codecov.io/gh/athos/Pinpointer)
 
 Pinpointer aims to enhance `clojure.spec/explain` facility and make it easy to grasp which part of data is causing the spec error.
 
