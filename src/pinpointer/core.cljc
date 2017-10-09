@@ -46,7 +46,7 @@
 
 (defn- format-line [line hiliting?]
   (let [[_ indent line'] (re-matches #"(\s*)(.*)" line)
-        parts (str/split line' #"\000")]
+        parts (str/split line' #"\u0000")]
     (if (= (count parts) 1)
       (if hiliting?
         [line (str (space (count indent)) (wavy-line (count line))) true]
@@ -64,7 +64,7 @@
                      (conj wavy (space (count part)))))))))))
 
 (defn- format-data [value trace opts]
-  (let [lines (binding [formatter/*highlighting-mark* "\000"]
+  (let [lines (binding [formatter/*highlighting-mark* "\u0000"]
                 (str/split (formatter/format value trace opts) #"\n"))]
     (loop [[line & more] lines, hiliting? false, ret []]
       (if-not line
