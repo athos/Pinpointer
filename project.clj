@@ -28,7 +28,14 @@
                         :compiler {:output-to "target/nashorn_out/test.js"
                                    :output-dir "target/nashorn_out"
                                    :main pinpointer.runner
-                                   :optimizations :whitespace}}]}
+                                   :optimizations :whitespace}}
+                       {:id "node-test"
+                        :source-paths ["src" "test/cljc" "test/cljs"]
+                        :compiler {:output-to "target/node_out/test.js"
+                                   :output-dir "target/node_out"
+                                   :main pinpointer.runner
+                                   :optimizations :none
+                                   :target :nodejs}}]}
 
   :eftest {:report eftest.report.pretty/report}
 
@@ -40,4 +47,5 @@
             "test-cljs" ["do" ["test-cljs-none" "once"]
                               ["test-cljs-nashorn" "once"]]
             "test-cljs-none" ["doo" "phantom" "test"]
-            "test-cljs-nashorn" ["doo" "nashorn" "nashorn-test"]})
+            "test-cljs-nashorn" ["doo" "nashorn" "nashorn-test"]
+            "test-cljs-node" ["doo" "node" "node-test"]})
