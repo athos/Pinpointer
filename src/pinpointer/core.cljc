@@ -143,7 +143,7 @@
 
 (defn pinpoint-out
   ([ed] (pinpoint-out ed {}))
-  ([ed {:keys [width colorize fallback-on-error]
+  ([ed {:keys [width colorize fallback-on-error] :as opts
         :or {width 70, fallback-on-error true}}]
    (if ed
      (let [{:keys [::s/problems ::s/value] :as ed'} (correct-paths ed)
@@ -153,15 +153,17 @@
                       (trace/traces ed'))
                     (catch #?(:clj Throwable :cljs :default) e e))]
        (cond (vector? traces)
-             (do (reset! last-explain-data ed)
-                 (binding [*colorize-fn* (choose-colorize-fn colorize)]
-                   (print-headline nproblems)
-                   (hline width)
-                   (doseq [t (map vector (range) problems traces)]
-                     (print-error nproblems value t
-                                  {:width (max (- width 11) 0)})
-                     (newline)
-                     (hline width))))
+             (let [opts (-> opts
+                            (assoc :width (max (- width 11) 0))
+                            (dissoc :colorize :fallback-on-error))]
+               (reset! last-explain-data ed)
+               (binding [*colorize-fn* (choose-colorize-fn colorize)]
+                 (print-headline nproblems)
+                 (hline width)
+                 (doseq [t (map vector (range) problems traces)]
+                   (print-error nproblems value t opts)
+                   (newline)
+                   (hline width))))
 
              fallback-on-error
              (do (println "[PINPOINTER] Failed to analyze the spec errors, and will fall back to s/explain-printer\n")

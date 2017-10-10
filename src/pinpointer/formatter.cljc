@@ -67,16 +67,15 @@
     (wrap visit/visit-record this x))
   )
 
-(defn highlight-printer [trace]
-  (let [base-printer (edn/map->EdnPrinter {:symbols {}})]
-    (->HighlightPrinter base-printer trace)))
-
 (defn format
   ([x trace] (format x trace {}))
   ([x trace opts]
-   (let [printer (highlight-printer trace)]
+   (let [base-printer (or (:base-printer opts)
+                          (edn/map->EdnPrinter {:symbols {}}))
+         printer (->HighlightPrinter base-printer trace)]
      (with-out-str
-       (fipp/pprint-document (visit/visit printer x) opts)))))
+       (fipp/pprint-document (visit/visit printer x)
+                             (dissoc opts :base-printer))))))
 
 ;;
 ;; Method implementations of `render`
