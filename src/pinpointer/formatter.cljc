@@ -8,8 +8,8 @@
 (def ^:dynamic *highlighting-mark* "!!!")
 
 (defmulti render
-  (fn [{:keys [spec]} f printer x] (when (seq? spec) (first spec))))
-(defmethod render :default [_ f printer x]
+  (fn [{:keys [spec]} printer x] (when (seq? spec) (first spec))))
+(defmethod render :default [_ printer x]
   (let [spec (-> (:trace printer) first :spec)
         msg (str "spec " spec
                  " must have its own method implementation of " `render)]
@@ -23,7 +23,7 @@
     (if (= x (:val frame))
       (if (and (= (count trace) 1) (not (:reason frame)))
         (highlight (f (:base-printer printer) x))
-        (render frame f printer x))
+        (render frame printer x))
       (f (:base-printer printer) x))))
 
 (defn pop-trace [printer]
@@ -85,16 +85,16 @@
 (defn- render-next [printer x]
   (visit/visit (pop-trace printer) x))
 
-(defmethod render `s/spec [frame _ printer x]
+(defmethod render `s/spec [frame printer x]
   (render-next printer x))
 
-(defmethod render `s/and [frame _ printer x]
+(defmethod render `s/and [frame printer x]
   (render-next printer x))
 
-(defmethod render `s/or [frame _ printer x]
+(defmethod render `s/or [frame printer x]
   (render-next printer x))
 
-(defmethod render `s/nilable [frame _ printer x]
+(defmethod render `s/nilable [frame printer x]
   (render-next printer x))
 
 (defn- pretty-coll [printer open xs sep close f]
@@ -118,7 +118,7 @@
                      (visit/visit (cond-> printer (= i n) pop-trace) x)))]
      (pretty-coll printer open x sep close each-fn))))
 
-(defmethod render `s/tuple [{:keys [steps] :as frame} _ printer x]
+(defmethod render `s/tuple [{:keys [steps] :as frame} printer x]
   (if (empty? steps)
     (render-next printer x)
     (render-coll frame printer x)))
@@ -128,10 +128,10 @@
     (render-next printer x)
     (render-coll frame printer x)))
 
-(defmethod render `s/every [frame _ printer x]
+(defmethod render `s/every [frame printer x]
   (render-every frame printer x))
 
-(defmethod render `s/coll-of [frame _ printer x]
+(defmethod render `s/coll-of [frame printer x]
   (render-every frame printer x))
 
 (defn- render-every-kv [{:keys [steps] :as frame} printer x]
@@ -148,13 +148,13 @@
                            pop-trace)]
             [:span (visit/visit kprinter k) " " (visit/visit vprinter v)]))))))
 
-(defmethod render `s/every-kv [frame _ printer x]
+(defmethod render `s/every-kv [frame printer x]
   (render-every-kv frame printer x))
 
-(defmethod render `s/map-of [frame _ printer x]
+(defmethod render `s/map-of [frame printer x]
   (render-every-kv frame printer x))
 
-(defmethod render `s/keys [{[key] :steps :as frame} _ printer x]
+(defmethod render `s/keys [{[key] :steps :as frame} printer x]
   (if (nil? key)
     (visit/visit (pop-trace printer) x)
     (render-coll frame printer x
@@ -162,7 +162,7 @@
         (let [vprinter (cond-> printer (= k key) pop-trace)]
           [:span (visit/visit printer k) " " (visit/visit vprinter v)])))))
 
-(defmethod render `s/merge [frame _ printer x]
+(defmethod render `s/merge [frame printer x]
   (render-next printer x))
 
 (defn- render-regex [{:keys [reason steps] :as frame} printer x]
@@ -188,28 +188,28 @@
 
         :else (render-coll frame printer x)))
 
-(defmethod render `s/cat [frame _ printer x]
+(defmethod render `s/cat [frame printer x]
   (render-regex frame printer x))
 
-(defmethod render `s/& [frame _ printer x]
+(defmethod render `s/& [frame printer x]
   (render-regex frame printer x))
 
-(defmethod render `s/alt [frame _ printer x]
+(defmethod render `s/alt [frame printer x]
   (render-regex frame printer x))
 
-(defmethod render `s/? [frame _ printer x]
+(defmethod render `s/? [frame printer x]
   (render-regex frame printer x))
 
-(defmethod render `s/* [frame _ printer x]
+(defmethod render `s/* [frame printer x]
   (render-regex frame printer x))
 
-(defmethod render `s/+ [frame _ printer x]
+(defmethod render `s/+ [frame printer x]
   (render-regex frame printer x))
 
-(defmethod render `s/multi-spec [frame _ printer x]
+(defmethod render `s/multi-spec [frame printer x]
   (if (= (:reason frame) "no method")
     (highlight (visit/visit (:base-printer printer) x))
     (render-next printer x)))
 
-(defmethod render `s/nonconforming [frame _ printer x]
+(defmethod render `s/nonconforming [frame printer x]
   (render-next printer x))
