@@ -186,8 +186,8 @@
   ([spec x opts]
    (pinpoint-out (s/explain-data spec x) opts)))
 
-(defn playback
-  ([] (playback {}))
+(defn replay
+  ([] (replay {}))
   ([opts]
    (pinpoint-out @last-explain-data opts)))
 
