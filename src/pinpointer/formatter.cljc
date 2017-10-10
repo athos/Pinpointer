@@ -10,7 +10,10 @@
 (defmulti render
   (fn [{:keys [spec]} f printer x] (when (seq? spec) (first spec))))
 (defmethod render :default [_ f printer x]
-  (f (:base-printer printer) x))
+  (let [spec (-> (:trace printer) first :spec)
+        msg (str "spec " spec
+                 " must have its own method implementation of " `render)]
+    (throw (ex-info msg {:spec spec}))))
 
 (defn- highlight [x]
   [:span [:escaped *highlighting-mark*] x [:escaped *highlighting-mark*]])
