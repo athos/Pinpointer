@@ -142,6 +142,9 @@
 (defonce ^:private last-explain-data (atom nil))
 
 (defn pinpoint-out
+  "A plugin implementation of s/*explain-out*.
+
+  Takes the same options as pinpoint."
   ([ed] (pinpoint-out ed {}))
   ([ed {:keys [width colorize fallback-on-error] :as opts
         :or {width 70, fallback-on-error true}}]
@@ -173,6 +176,12 @@
      (println "Success!!"))))
 
 (defn pinpoint
+  "Given a spec and a value that fails to conform, reports the spec error(s) in a human-friendly manner.
+
+  The opts map may have the following keys:
+    :width - Number of columns to try to wrap the report at. Defaults to 70.
+    :colorize - Can either be a keyword :ansi, :none or a fn that takes a color keyword and a string, and returns the colorized string. Defaults to :none.
+    :fallback-on-error - If set to true, falls back to s/explain-printer in case of an error during the analysis. Otherwise, throws the error. Defaults to true."
   ([spec x] (pinpoint spec x {}))
   ([spec x opts]
    (pinpoint-out (s/explain-data spec x) opts)))
