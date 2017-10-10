@@ -9,7 +9,7 @@
   :dependencies [[org.clojure/clojure "1.9.0-beta2" :scope "provided"]
                  [org.clojure/clojurescript "1.9.946" :scope "provided"]
                  [clansi "1.0.0"]
-                 [fipp "0.6.8"]
+                 [fipp "0.6.10"]
                  [spectrace "0.1.0-SNAPSHOT"]]
 
   :plugins [[lein-cloverage "1.0.9"]
