@@ -3,7 +3,7 @@
 [![CircleCI](https://circleci.com/gh/athos/Pinpointer.svg?style=shield)](https://circleci.com/gh/athos/Pinpointer)
 [![codecov](https://codecov.io/gh/athos/Pinpointer/branch/master/graph/badge.svg)](https://codecov.io/gh/athos/Pinpointer)
 
-Pinpointer aims to enhance `clojure.spec/explain` facility and make it easy to grasp which part of data is causing the spec error.
+Pinpointer is yet another spec error reporter with sophisticated error analysis.
 
 **Notice**: Pinpointer is built on top of `clojure.spec`, which is one of the most actively developed new features of Clojure. So, it's very fragile by nature, and its APIs are also highly subject to change.
 
