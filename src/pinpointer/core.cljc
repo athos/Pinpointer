@@ -8,9 +8,6 @@
             [pinpointer.trace :as trace]
             [spectrace.core :as strace]))
 
-(def ^:dynamic *eval-fn*
-  strace/*eval-fn*)
-
 (def ^:dynamic ^:private *colorize-fn*)
 
 (defn- colorize [color s]
@@ -146,13 +143,13 @@
 
   Takes the same options as pinpoint."
   ([ed] (pinpoint-out ed {}))
-  ([ed {:keys [width colorize fallback-on-error] :as opts
+  ([ed {:keys [width colorize fallback-on-error eval] :as opts
         :or {width 70, fallback-on-error true}}]
    (if ed
      (let [{:keys [::s/problems ::s/value] :as ed'} (correct-paths ed)
            nproblems (count problems)
            traces (try
-                    (binding [strace/*eval-fn* *eval-fn*]
+                    (binding [strace/*eval-fn* (or eval strace/*eval-fn*)]
                       (trace/traces ed'))
                     (catch #?(:clj Throwable :cljs :default) e e))]
        (cond (vector? traces)
@@ -181,7 +178,8 @@
   The opts map may have the following keys:
     :width - Number of columns to try to wrap the report at. Defaults to 70.
     :colorize - Can either be a keyword :ansi, :none or a fn that takes a color keyword and a string, and returns the colorized string. Defaults to :none.
-    :fallback-on-error - If set to true, falls back to s/explain-printer in case of an error during the analysis. Otherwise, throws the error. Defaults to true."
+    :fallback-on-error - If set to true, falls back to s/explain-printer in case of an error during the analysis. Otherwise, throws the error. Defaults to true.
+    :eval - eval fn to be used to analyze spec errors. Defaults to clojure.core/eval in Clojure, nil in ClojureScript."
   ([spec x] (pinpoint spec x {}))
   ([spec x opts]
    (pinpoint-out (s/explain-data spec x) opts)))
