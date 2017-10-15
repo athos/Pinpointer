@@ -202,6 +202,30 @@
     [1 "foo" 2 :bar]
     [["[1 \"foo\" 2 !!!:bar!!!]\n"]]
 
+    (s/coll-of (s/int-in 0 5))
+    [0 :a 2]
+    [["[0 !!!:a!!! 2]\n"]]
+
+    (s/coll-of (s/int-in 0 5))
+    [0 5 2]
+    [["[0 !!!5!!! 2]\n"]]
+
+    (s/coll-of (s/double-in :min 0 :max 5))
+    [0.5 :a 4.5]
+    [["[0.5 !!!:a!!! 4.5]\n"]]
+
+    (s/coll-of (s/double-in :min 0 :max 5))
+    [0.5 10.5 4.5]
+    [["[0.5 !!!10.5!!! 4.5]\n"]]
+
+    (s/coll-of (s/inst-in #inst "2016-01-01" #inst "2017-01-01"))
+    [#inst "2016-01-01" nil]
+    [["[#inst \"2016-01-01T00:00:00.000-00:00\" !!!nil!!!]\n"]]
+
+    (s/coll-of (s/inst-in #inst "2016-01-01" #inst "2017-01-01"))
+    [#inst "2018-01-01"]
+    [["[!!!#inst \"2018-01-01T00:00:00.000-00:00\"!!!]\n"]]
+
     ::shape
     {:type :rectangle}
     [["!!!{:type :rectangle}!!!\n"]]

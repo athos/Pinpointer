@@ -205,6 +205,15 @@
 (defmethod render `s/+ [frame printer x]
   (render-regex frame printer x))
 
+(defmethod render `s/int-in [frame printer x]
+  (render-next printer x))
+
+(defmethod render `s/double-in [frame printer x]
+  (render-next printer x))
+
+(defmethod render `s/inst-in [frame printer x]
+  (render-next printer x))
+
 (defmethod render `s/multi-spec [frame printer x]
   (if (= (:reason frame) "no method")
     (highlight (visit/visit (:base-printer printer) x))
