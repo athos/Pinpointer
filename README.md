@@ -110,6 +110,29 @@ Detected 1 spec error:
 =>
 ```
 
+## ClojureScript support
+
+Pinpointer also supports ClojureScript. Note, however, that it may use `eval` for its spec error analysis in general (especially, when analyzing specs with a literal fn in them) while ClojureScript doesn't have a platform-independent `eval` fn.
+
+If you use Pinpointer from a self-hosted ClojureScript implementation equipped with `eval` such as Planck or Lumo, it should work fine even in general cases as follows:
+
+```clj
+=> (require '[planck.core :as planck])
+nil
+=> (p/pinpoint (s/and integer? #(> % 10)) 5 {:eval planck/eval})
+Detected 1 spec error:
+----------------------------------------------------------------------
+(1/1)
+
+    Input: 5
+           ^
+ Expected: (fn [%] (> % 10))
+
+----------------------------------------------------------------------
+nil
+=>
+```
+
 ## Known Issues
 
 There are a couple of known issues in Pinpointer, primarily due to `clojure.spec`'s bugs. They can be found on [Issues page](https://github.com/athos/Pinpointer/issues?q=is%3Aissue+is%3Aopen+label%3A%22spec+bug%22), being tagged with `spec bug`.
