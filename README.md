@@ -104,6 +104,12 @@ Detected 1 spec error:
 =>
 ```
 
+## Known Issues
+
+There are a couple of known issues in Pinpointer, primarily due to `clojure.spec`'s bugs. They can be found on [Issues page](https://github.com/athos/Pinpointer/issues?q=is%3Aissue+is%3Aopen+label%3A%22spec+bug%22), being tagged with `spec bug`.
+
+If you found something wrong when using Pinpointer and you want to report an issue, check whether or not it's already been filed there first.
+
 ## License
 
 Copyright © 2016 Shogo Ohta
