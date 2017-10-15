@@ -4,11 +4,16 @@
 [![codecov](https://codecov.io/gh/athos/Pinpointer/branch/master/graph/badge.svg)](https://codecov.io/gh/athos/Pinpointer)
 [![join the chat at https://gitter.im/athos/pinpointer](https://badges.gitter.im/athos/pinpointer.svg)](https://gitter.im/athos/pinpointer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Pinpointer is yet another spec error reporter with sophisticated error analysis.
+Pinpointer is yet another clojure.spec error reporter with sophisticated error analysis.
 
-**Notice**: Pinpointer is built on top of `clojure.spec`, which is one of the most actively developed new features of Clojure. So, it's very fragile by nature, and its APIs are also highly subject to change.
+It has the following features:
 
-Pinpointer heavily uses [`spectrace`](https://github.com/athos/spectrace), a fine-grained spec error analyzer, to analyze the errors and report them as precise as possible.
+- Visually pinpoints what portion of the input data is causing the spec error, based on the spec error analysis of [`spectrace`](https://github.com/athos/spectrace), a fine-grained spec error analyzer
+- Formats and colorizes the error reports in an easy-to-grasp manner
+- Tracks 'value changes', i.e. reports the spec errors correctly even when `s/conformer` in the spec transforms the input data
+- Extensible to user-defined spec macros (not documented yet)
+
+**Notice**: Pinpointer is built on top of `clojure.spec`, which is one of the most actively developed new features of Clojure. So, it's still in alpha and its APIs are also subject to change.
 
 ## Installation
 
