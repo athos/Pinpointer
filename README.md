@@ -4,16 +4,16 @@
 [![codecov](https://codecov.io/gh/athos/Pinpointer/branch/master/graph/badge.svg)](https://codecov.io/gh/athos/Pinpointer)
 [![join the chat at https://gitter.im/athos/pinpointer](https://badges.gitter.im/athos/pinpointer.svg)](https://gitter.im/athos/pinpointer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Pinpointer is yet another clojure.spec error reporter with sophisticated error analysis.
+Pinpointer is yet another clojure.spec error reporter with a sophisticated error analysis.
 
 It has the following features:
 
-- Visually pinpoints what portion of the input data is causing the spec error, based on the spec error analysis of [`spectrace`](https://github.com/athos/spectrace), a fine-grained spec error analyzer
+- Visually pinpoints which portion of the input data is causing the spec error, based on the spec error analysis of [`spectrace`](https://github.com/athos/spectrace), a fine-grained spec error analyzer
 - Formats and colorizes the error reports in an easy-to-grasp manner
 - Tracks 'value changes', i.e. reports the spec errors correctly even when `s/conformer` in the spec transforms the input data
 - Extensible to user-defined spec macros (not documented yet)
 
-**Notice**: Pinpointer is built on top of `clojure.spec`, which is one of the most actively developed new features of Clojure. So, it's still in alpha and its APIs are also subject to change.
+**Notice**: Pinpointer is built on top of clojure.spec, which is one of Clojure's new features that have been developed most actively. So, it's still in alpha and its APIs are also subject to change.
 
 ## Installation
 
@@ -23,7 +23,7 @@ Add the following to your `:dependencies`:
 
 ## Why and how to use it
 
-`clojure.spec(.alpha)` provides an API named `explain`, which (as its name suggests) explains which part of the code causes a spec error:
+clojure.spec provides an API named `explain`, which describes which portion of the input data caused a spec error:
 
 ```clj
 => (s/def ::x integer?)
@@ -37,11 +37,11 @@ nil
 => 
 ```
 
-As you can see, however, the result of `explain` doesn't look very human-friendlily formatted, and it's likely to take a while to find out where the actual problem is.
+As you can see above, the result of `explain` is simple and plain, but it is often not easy to understand intuitively what was wrong. And it will take longer time to find out where the actual problem is as the spec and input data are getting larger.
 
 ### pinpoint: replacement of s/explain
 
-_Pinpointer_ provides APIs compatible with `explain` and displays the problematic parts in an easier-to-grasp manner:
+_Pinpointer_ provides an API compatible with `explain`, which is named `pinpoint`, and it shows the spec errors in a visually  easy-to-grasp manner:
 
 ```clj
 => (require '[pinpointer.core :as p])
@@ -68,13 +68,16 @@ nil
 ```
 
 
-You can also colorize the report by adding the option `{:colorize :ansi}`:
+You can also colorize the error reports by adding the option `{:colorize :ansi}` to increase the readability:
+
 
 <img src="doc/images/colorized-pinpoint-result.png" width="630">
 
+`pinpoint` has several other options. See the docstring for more details.
+
 ### pinpoint-out: plugin implementation for s/\*explain-out\*
 
-If you'd rather like to completely replace the `explain` facility for any kinds of spec error reporting, it would be helpful to replace `s/*explain-out*` with `pinpointer.core/pinpoint-out` instead:
+If you'd rather completely replace the `explain` facility for any kinds of spec error reporting, it would be helpful to replace `s/*explain-out*` with `pinpointer.core/pinpoint-out` instead:
 
 ```clj
 => (set! s/*explain-out* p/pinpoint-out)
