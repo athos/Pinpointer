@@ -33,10 +33,8 @@ Add the following to your `:dependencies`:
 => (s/explain (s/keys :req-un [::x ::y]) {:y 1})
 In: [:y] val: 1 fails spec: :user/y at: [:y] predicate: string?
 val: {:y 1} fails predicate: (contains? % :x)
-:clojure.spec.alpha/spec  #object[clojure.spec.alpha$map_spec_impl$reify__695 0x47cb4017 "clojure.spec.alpha$map_spec_impl$reify__695@47cb4017"]
-:clojure.spec.alpha/value  {:y 1}
 nil
-=>
+=> 
 ```
 
 As you can see, however, the result of `explain` doesn't look very human-friendlily formatted, and it's likely to take a while to find out where the actual problem is.
