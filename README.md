@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/athos/Pinpointer/branch/master/graph/badge.svg)](https://codecov.io/gh/athos/Pinpointer)
 [![join the chat at https://gitter.im/athos/pinpointer](https://badges.gitter.im/athos/pinpointer.svg)](https://gitter.im/athos/pinpointer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Pinpointer is yet another clojure.spec error reporter with a sophisticated error analysis.
+Pinpointer is yet another clojure.spec error reporter based on a precise error analysis.
 
 It has the following features:
 
