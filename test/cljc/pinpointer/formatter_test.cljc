@@ -1,5 +1,6 @@
 (ns pinpointer.formatter-test
   (:require [clojure.spec.alpha :as s]
+            [clojure.spec.gen.alpha :as gen]
             [clojure.test :refer [deftest is are]]
             [pinpointer.formatter :as formatter]
             [pinpointer.trace :as trace]))
@@ -234,4 +235,6 @@
     {:type :circle :radius "100"}
     [["{:type :circle, :radius !!!\"100\"!!!}\n"]]
 
-    ))
+    (s/coll-of (s/with-gen (s/spec integer?) #(gen/return 1)))
+    [0 :foo 2]
+    [["[0 !!!:foo!!! 2]\n"]]))

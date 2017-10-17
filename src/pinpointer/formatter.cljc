@@ -221,3 +221,6 @@
 
 (defmethod render `s/nonconforming [frame printer x]
   (render-next printer x))
+
+(defmethod render `s/with-gen [frame printer x]
+  (render-next printer x))
