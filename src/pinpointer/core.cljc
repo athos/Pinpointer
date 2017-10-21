@@ -1,6 +1,7 @@
 (ns pinpointer.core
   (:require #?(:clj [clansi])
             [clojure.spec.alpha :as s]
+            [clojure.spec.test.alpha :as t]
             [clojure.string :as str]
             [clojure.walk :as walk]
             [fipp.clojure :as fipp]
@@ -163,7 +164,11 @@
                  (doseq [t (map vector (range) problems traces)]
                    (print-error nproblems value t opts)
                    (newline)
-                   (hline width))))
+                   (hline width))
+                 (when-let [caller (::t/caller ed')]
+                   (println (str "  " (:var-scope caller)
+                                 " (" (:file caller)
+                                 ":" (:line caller) ")")))))
 
              fallback-on-error
              (do (println "[PINPOINTER] Failed to analyze the spec errors, and will fall back to s/explain-printer\n")
