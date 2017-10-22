@@ -178,13 +178,20 @@
      (println "Success!!"))))
 
 (defn pinpoint
-  "Given a spec and a value that fails to conform, reports the spec error(s) in a human-friendly manner.
+  "Given a spec and a value that fails to conform, reports the spec
+error(s) in a human-friendly manner.
 
-  The opts map may have the following keys:
-    :width - Number of columns to try to wrap the report at. Defaults to 70.
-    :colorize - Can either be a keyword :ansi, :none or a fn that takes a color keyword and a string, and returns the colorized string. Defaults to :none.
-    :fallback-on-error - If set to true, falls back to s/explain-printer in case of an error during the analysis. Otherwise, throws the error. Defaults to true.
-    :eval - eval fn to be used to analyze spec errors. Defaults to clojure.core/eval in Clojure, nil in ClojureScript."
+The opts map may have the following keys:
+  :width - Number of columns to try to wrap the report at.
+    Defaults to 70.
+  :colorize - Can either be a keyword :ansi, :none or a fn that
+    takes a color keyword and a string, and returns the colorized
+    string. Defaults to :none.
+  :fallback-on-error - If set to true, falls back to
+    s/explain-printer in case of an error during the analysis.
+    Otherwise, rethrows the error. Defaults to true.
+  :eval - eval fn to be used to analyze spec errors. Defaults to
+    clojure.core/eval in Clojure, nil in ClojureScript."
   ([spec x] (pinpoint spec x {}))
   ([spec x opts]
    (pinpoint-out (s/explain-data spec x) opts)))
