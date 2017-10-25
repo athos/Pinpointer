@@ -15,6 +15,9 @@
                  " must have its own method implementation of " `render)]
     (throw (ex-info msg {:spec spec}))))
 
+(defn call-with-base-printer [f printer x]
+  (f (:base-printer printer) x))
+
 (defn- highlight [x]
   [:span [:escaped *highlighting-mark*] x [:escaped *highlighting-mark*]])
 
@@ -22,9 +25,9 @@
   (let [frame (first trace)]
     (if (= x (:val frame))
       (if (and (= (count trace) 1) (not (:reason frame)))
-        (highlight (f (:base-printer printer) x))
+        (highlight (call-with-base-printer f printer x))
         (render frame printer x))
-      (f (:base-printer printer) x))))
+      (call-with-base-printer f printer x))))
 
 (defn pop-trace [printer]
   (update printer :trace rest))
@@ -166,20 +169,18 @@
 
 (defn- render-regex [{:keys [reason steps] :as frame} printer x]
   (cond (= reason "Extra input")
-        (let [printer (:base-printer printer)]
-          (render-coll frame printer x
-            (fn [i v]
-              (cond-> (visit/visit printer v)
-                (>= i (first steps)) highlight))))
+        (render-coll frame (:base-printer printer) x
+          (fn [i v]
+            (cond-> (call-with-base-printer visit/visit printer v)
+              (>= i (first steps)) highlight)))
 
         (or (= reason "Insufficient input") ;; special case for s/alt
             (when-let [next-frame (second (:trace printer))]
               (= (:reason next-frame) "Insufficient input")))
-        (let [printer (:base-printer printer)
-              x (if (seq? x) (concat x ['...]) (conj x '...))]
+        (let [x (if (seq? x) (concat x ['...]) (conj x '...))]
           (render-coll frame printer x
             (fn [i v]
-              (cond-> (visit/visit printer v)
+              (cond-> (call-with-base-printer visit/visit printer v)
                 (= i (dec (count x))) highlight))))
 
         (empty? steps)
@@ -216,7 +217,7 @@
 
 (defmethod render `s/multi-spec [frame printer x]
   (if (= (:reason frame) "no method")
-    (highlight (visit/visit (:base-printer printer) x))
+    (highlight (call-with-base-printer visit/visit printer x))
     (render-next printer x)))
 
 (defmethod render `s/nonconforming [frame printer x]
