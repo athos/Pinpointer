@@ -227,6 +227,16 @@
     [#inst "2018-01-01"]
     [["[!!!#inst \"2018-01-01T00:00:00.000-00:00\"!!!]\n"]]
 
+    (s/fspec :args (s/cat :x int?) :ret keyword?)
+    identity
+    #?(:clj [["!!!#function[core/identity]!!!\n"]]
+       :cljs [["!!!#function[cljs/core/identity]!!!\n"]])
+
+    (s/fspec :args (s/cat :x int?) :ret string?)
+    name
+    #?(:clj [["!!!#function[core/name]!!!\n"]]
+       :cljs [["!!!#function[cljs/core/name]!!!\n"]])
+
     ::shape
     {:type :rectangle}
     [["!!!{:type :rectangle}!!!\n"]]

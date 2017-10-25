@@ -15,8 +15,17 @@
                  " must have its own method implementation of " `render)]
     (throw (ex-info msg {:spec spec}))))
 
+(defn- fn-name [func]
+  #?(:clj (-> (.getClass func)
+              .getSimpleName
+              clojure.lang.Compiler/demunge)
+     :cljs (not-empty (demunge (.-name func)))))
+
 (defn call-with-base-printer [f printer x]
-  (f (:base-printer printer) x))
+  (if (fn? x)
+    (let [fn-name (or (fn-name x) "anonymous fn")]
+      (str "#function[" fn-name "]"))
+    (f (:base-printer printer) x)))
 
 (defn- highlight [x]
   [:span [:escaped *highlighting-mark*] x [:escaped *highlighting-mark*]])
@@ -214,6 +223,11 @@
 
 (defmethod render `s/inst-in [frame printer x]
   (render-next printer x))
+
+(defmethod render `s/fspec [frame printer x]
+  (if (some-> (second (:trace printer)) :reason)
+    (highlight (call-with-base-printer visit/visit printer x))
+    (render-next printer x)))
 
 (defmethod render `s/multi-spec [frame printer x]
   (if (= (:reason frame) "no method")
