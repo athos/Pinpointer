@@ -123,7 +123,7 @@
                 (println "          " line))))]
    (let [[chunk & more] (rseq trace)]
      (println (str "(" (inc i) "/" total ")\n"))
-     (print-data "Input" chunk)
+     (print-data "Cause" chunk)
      (print-spec "Expected" (:pred problem))
      (when-let [reason (:reason problem)]
        (println (pad-left "Failure " 9))

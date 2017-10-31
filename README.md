@@ -34,7 +34,7 @@ clojure.spec provides an API named `explain`, which describes which portion of t
 In: [:y] val: 1 fails spec: :user/y at: [:y] predicate: string?
 val: {:y 1} fails predicate: (contains? % :x)
 nil
-=> 
+=>
 ```
 
 As you can see above, the result of `explain` is simple and plain, but it is often not easy to understand intuitively what was wrong. And it will take longer time to find out where the actual problem is as the spec and input data are getting larger.
@@ -51,14 +51,14 @@ Detected 2 spec errors:
 ----------------------------------------------------------------------
 (1/2)
 
-    Input: {:y 1}
+    Cause: {:y 1}
            ^^^^^^
  Expected: (fn [%] (contains? % :x))
 
 ----------------------------------------------------------------------
 (2/2)
 
-    Input: {:y 1}
+    Cause: {:y 1}
                ^
  Expected: string?
 
@@ -101,7 +101,7 @@ Detected 1 spec error:
 ----------------------------------------------------------------------
 (1/1)
 
-    Input: (3)
+    Cause: (3)
             ^
  Expected: even?
 
@@ -125,7 +125,7 @@ Detected 1 spec error:
 ----------------------------------------------------------------------
 (1/1)
 
-    Input: 5
+    Cause: 5
            ^
  Expected: (fn [%] (> % 10))
 
