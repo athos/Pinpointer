@@ -229,8 +229,8 @@
 
     (s/fspec :args (s/cat :x int?) :ret keyword?)
     identity
-    #?(:clj [["!!!#function[core/identity]!!!\n"]]
-       :cljs [["!!!#function[cljs/core/identity]!!!\n"]])
+    #?(:clj [["!!!#function[core/identity]!!!\n" "!!!0!!!\n"]]
+       :cljs [["!!!#function[cljs/core/identity]!!!\n" "!!!0!!!\n"]])
 
     (s/fspec :args (s/cat :x int?) :ret string?)
     name
