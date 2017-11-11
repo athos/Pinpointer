@@ -1,6 +1,6 @@
 # Pinpointer
 [![Clojars Project](https://img.shields.io/clojars/v/pinpointer.svg)](https://clojars.org/pinpointer)
-[![CircleCI](https://circleci.com/gh/athos/Pinpointer.svg?style=shield)](https://circleci.com/gh/athos/Pinpointer)
+[![CircleCI](https://circleci.com/gh/athos/Pinpointer/tree/master.svg?style=shield)](https://circleci.com/gh/athos/Pinpointer/tree/master)
 [![codecov](https://codecov.io/gh/athos/Pinpointer/branch/master/graph/badge.svg)](https://codecov.io/gh/athos/Pinpointer)
 [![join the chat at https://gitter.im/athos/pinpointer](https://badges.gitter.im/athos/pinpointer.svg)](https://gitter.im/athos/pinpointer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
