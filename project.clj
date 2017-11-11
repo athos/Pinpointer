@@ -6,7 +6,7 @@
 
   :test-paths ["test/cljc"]
 
-  :dependencies [[org.clojure/clojure "1.9.0-beta4" :scope "provided"]
+  :dependencies [[org.clojure/clojure "1.9.0-RC1" :scope "provided"]
                  [org.clojure/clojurescript "1.9.946" :scope "provided"]
                  [clansi "1.0.0"]
                  [fipp "0.6.10"]
