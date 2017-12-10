@@ -6,11 +6,11 @@
 
   :test-paths ["test/cljc"]
 
-  :dependencies [[org.clojure/clojure "1.9.0-RC2" :scope "provided"]
+  :dependencies [[org.clojure/clojure "1.9.0" :scope "provided"]
                  [org.clojure/clojurescript "1.9.946" :scope "provided"]
                  [clansi "1.0.0"]
                  [fipp "0.6.10"]
-                 [spectrace "0.1.0-SNAPSHOT"]]
+                 [spectrace "0.1.0"]]
 
   :plugins [[lein-cloverage "1.0.9"]
             [lein-cljsbuild "1.1.4"]
