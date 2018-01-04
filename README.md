@@ -142,6 +142,6 @@ If you found something wrong when using Pinpointer and you want to report an iss
 
 ## License
 
-Copyright © 2016 - 2017 Shogo Ohta ([@athos0220](https://twitter.com/athos0220))
+Copyright © 2016-2018 Shogo Ohta ([@athos0220](https://twitter.com/athos0220))
 
 Distributed under the Eclipse Public License 1.0.
