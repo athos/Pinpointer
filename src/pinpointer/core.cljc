@@ -175,7 +175,7 @@
                  (s/explain-printer ed))
 
              :else (throw traces)))
-     (println "Success!!"))))
+     (println "Success!"))))
 
 (defn pinpoint
   "Given a spec and a value that fails to conform, reports the spec
