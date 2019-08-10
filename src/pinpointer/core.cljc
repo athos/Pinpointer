@@ -144,8 +144,12 @@
 
   Takes the same options as pinpoint."
   ([ed] (pinpoint-out ed {}))
-  ([ed {:keys [width colorize fallback-on-error eval] :as opts
-        :or {width 70, fallback-on-error true}}]
+  ([ed {:keys [width colorize eval fallback-on-error fallback-reporting-fn] :as opts
+        :or {width 70
+             fallback-on-error true
+             fallback-reporting-fn (fn [_]
+                                     (println (str "[PINPOINTER] Failed to analyze the spec errors, "
+                                                   "and will fall back to s/explain-printer\n")))}}]
    (if ed
      (let [{:keys [::s/problems ::s/value] :as ed'} (correct-paths ed)
            nproblems (count problems)
@@ -171,11 +175,12 @@
                                  ":" (:line caller) ")")))))
 
              fallback-on-error
-             (do (println "[PINPOINTER] Failed to analyze the spec errors, and will fall back to s/explain-printer\n")
+             (do (fallback-reporting-fn {:explain-data ed
+                                         :exception traces})
                  (s/explain-printer ed))
 
              :else (throw traces)))
-     (println "Success!!"))))
+     (println "Success!"))))
 
 (defn pinpoint
   "Given a spec and a value that fails to conform, reports the spec
@@ -190,6 +195,9 @@ The opts map may have the following keys:
   :fallback-on-error - If set to true, falls back to
     s/explain-printer in case of an error during the analysis.
     Otherwise, rethrows the error. Defaults to true.
+  :fallback-reporting-fn - A fn (which takes as an argument a map with `:explanation-data` and `:exception` keys)
+    which reports that pinpointer is falling back to clojure.spec
+   to reports error. Defaults to a println with a fixed message.
   :eval - eval fn to be used to analyze spec errors. Defaults to
     clojure.core/eval in Clojure, nil in ClojureScript."
   ([spec x] (pinpoint spec x {}))
