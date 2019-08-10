@@ -1,4 +1,4 @@
-(defproject pinpointer "0.1.1-SNAPSHOT"
+(defproject pinpointer "0.1.1"
   :description "Pinpointer is yet another spec error reporter based on a precise error analysis"
   :url "https://github.com/athos/Pinpointer"
   :license {:name "Eclipse Public License"
