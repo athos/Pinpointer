@@ -23,12 +23,6 @@
                                    :output-dir "target/out"
                                    :main pinpointer.runner
                                    :optimizations :none}}
-                       {:id "nashorn-test"
-                        :source-paths ["src" "test/cljc" "test/cljs"]
-                        :compiler {:output-to "target/nashorn_out/test.js"
-                                   :output-dir "target/nashorn_out"
-                                   :main pinpointer.runner
-                                   :optimizations :whitespace}}
                        {:id "node-test"
                         :source-paths ["src" "test/cljc" "test/cljs"]
                         :compiler {:output-to "target/node_out/test.js"
@@ -44,8 +38,4 @@
 
   :aliases {"test-all" ["do" ["test-clj"] ["test-cljs"]]
             "test-clj" ["eftest"]
-            "test-cljs" ["do" ["test-cljs-none" "once"]
-                              ["test-cljs-nashorn" "once"]]
-            "test-cljs-none" ["doo" "phantom" "test"]
-            "test-cljs-nashorn" ["doo" "nashorn" "nashorn-test"]
-            "test-cljs-node" ["doo" "node" "node-test"]})
+            "test-cljs" ["doo" "node" "node-test" "once"]})
