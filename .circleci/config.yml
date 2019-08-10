@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/clojure:lein-browsers
+      - image: athos/cljc-dev:openjdk-8-alpine-20190219-0
 
     working_directory: ~/repo
 
@@ -25,8 +25,12 @@ jobs:
           key: v1-dependencies-{{ checksum "project.clj" }}
 
       - run:
-          name: test
-          command: lein test-all
+          name: test CLJ
+          command: lein test-clj
+
+      - run:
+          name: test CLJS
+          command: lein test-cljs
 
       - run:
           name: code-coverage
